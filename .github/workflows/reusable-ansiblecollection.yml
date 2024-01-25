@@ -78,7 +78,7 @@ jobs:
       - name: checkout ansible-collections
         run: |
           # install collection
-          ansible-galaxy collection install git+${{ github.repositoryUrl }},${{ github.sha }} -p collections
+          ansible-galaxy collection install git+${{ github.serverUrl }}/{{ github.repository }}.git,${{ github.sha }} -p collections
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
