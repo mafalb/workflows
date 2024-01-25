@@ -15,6 +15,7 @@ on: # yamllint disable-line rule:truthy
 jobs:
 
   ansible-test:
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
