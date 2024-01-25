@@ -118,7 +118,7 @@ jobs:
 
       - name: install shellcheck
         run: sudo apt-get install shellcheck
-k
+
       - name: sanity
         run: |
           source ~/.virtualenvs/ansible/bin/activate
