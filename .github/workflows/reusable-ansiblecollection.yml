@@ -87,6 +87,7 @@ jobs:
 
       - name: The targeted CI Branch is set
         run: |
+          test -n "${{ env.CI_BRANCH }}"
           test -n "${{ vars.CI_BRANCH }}"
 
       - name: setup python
