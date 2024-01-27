@@ -22,7 +22,7 @@ on: # yamllint disable-line rule:truthy
 jobs:
   setenv:
     outputs:
-      env_name: ${{ steps.set_name.outputs.env_name
+      env_name: ${{ steps.set_name.outputs.env_name }}
     steps:
       - name: Set the name of the environment
         id: set_name
