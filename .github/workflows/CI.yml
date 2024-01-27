@@ -28,6 +28,6 @@ jobs:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       repo: mafalb/ansible_collection_skeleton
-      ref: collections
+      ref: dev
     
 ...
