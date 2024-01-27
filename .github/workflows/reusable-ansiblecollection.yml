@@ -78,6 +78,7 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
+      bla: ${{ vars.CI_BRANCH }}
 
     defaults:
       run:
@@ -87,7 +88,8 @@ jobs:
 
       - name: The targeted CI Branch is set
         run: |
-          test -n "${{ env.CI_BRANCH }}"
+          echo ${{ needs.PRE.outputs.env_name }}
+          test -n "$bla"
           test -n "${{ vars.CI_BRANCH }}"
 
       - name: setup python
