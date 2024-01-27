@@ -73,6 +73,10 @@ jobs:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
 
+     defaults:
+      run:
+        working-directory: collections/ansible_collections/mafalb/openssh
+
     steps:
 
       - name: setup python
@@ -84,6 +88,7 @@ jobs:
       # We use ansible-galaxy, not actions/checkout
       #
       - name: checkout ansible-collections
+        working-directory: ${{ github.workspace }}
         run: |
          
           # install collection
@@ -110,7 +115,6 @@ jobs:
 
       - name: install ansible
         run: |
-          cd ../..
           tree
           ansible-playbook -D mafalb/ansible/playbooks/install-ansible.yml -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}", "ansible-lint${{ matrix.ansible_lint_specifier }}", "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}' -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
         env:
@@ -133,6 +137,7 @@ jobs:
           yamllint -s .
 
       - name: lint
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
@@ -156,6 +161,7 @@ jobs:
         run: sudo apt-get install shellcheck
 
       - name: sanity
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           if test "${{ matrix.ansible_version }}" = "2.12"
@@ -169,17 +175,20 @@ jobs:
           fi
 
       - name: unit tests
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           ansible-test units --coverage --requirements --python ${{ matrix.python_version }}
 
       - name: integration tests
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           ansible-test integration --requirements --python ${{ matrix.python_version }}
 
       - name: docs
         if: matrix.ansible_version != '2.12'
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           mkdir /tmp/collections
