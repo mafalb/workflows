@@ -11,15 +11,15 @@ on:  # yamllint disable-line rule:truthy
 
   # make it reusable
   workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ${{ github.sha }}
 
 jobs:
 
   prepare:
     runs-on: ubuntu-22.04
-    inputs:
-      ref:
-        type: string
-        default: ${{ github.sha }}
     outputs:
       repo: ${{ steps.mangle.outputs.repo }}
       ref: ${{ steps.mangle.outputs.ref }}
