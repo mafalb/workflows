@@ -22,20 +22,12 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
 
-  PRE:
-    # don't run on pull request from ourselves
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository 
-    uses: ./.github/workflows/reusable-environment.yml
-
   ANSIBLECOLLECTION:
-    needs: PRE
-    #environment: ${{ needs.PRE.outputs.env_name }}
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       repo: mafalb/ansible-test-collections
-      ref: dev
-    #  ref: ${{ vars.CI_NAME }}
+      ref: __override__
 
 ...

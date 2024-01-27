@@ -21,8 +21,15 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
 
+  getenv:
+    # don't run on pull request from ourselves
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository 
+    uses: ./.github/workflows/reusable-environment.yml
+
   ansible-test:
     runs-on: ubuntu-22.04
+    needs: getenv
+    environment: ${{ needs.PRE.outputs.env_name }}
 
     strategy:
       fail-fast: false
@@ -79,9 +86,9 @@ jobs:
     steps:
 
       - name: The targeted CI Branch is set
-        run: test -n "${{ vars.CI_BRANCH }}"
-      - name: The environment is set
-        run: test -n "${{ vars.CI_BRANCH }} 
+        run: |
+          test -n "${{ vars.CI_BRANCH }}"
+
       - name: setup python
         uses: actions/setup-python@v5
         with:
@@ -94,8 +101,14 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
          
+          if test "${{ inputs.ref }}" = "__override__"; then
+            ref="${{ vars.CI_BRANCH }}"
+          else
+            ref="${{ inputs.ref }}"
+          fi
+          
           # install the collection we want to test
-          ansible-galaxy collection install git+${{ github.server_url }}/${{ inputs.repo }}.git,${{ inputs.ref }} -p collections
+          ansible-galaxy collection install git+${{ github.server_url }}/${{ inputs.repo }}.git,${ref} -p collections
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
