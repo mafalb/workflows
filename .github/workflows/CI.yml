@@ -23,7 +23,6 @@ on: # yamllint disable-line rule:truthy
 jobs:
 
   lint:
-    runs-on: ubuntu-22.04
     uses: ./.github/workflows/reusable-yamllint.yml
 
   ANSIBLECOLLECTION:
