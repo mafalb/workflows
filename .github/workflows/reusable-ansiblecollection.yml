@@ -80,17 +80,7 @@ jobs:
       ANSIBLE_FORCE_COLOR: 1
       CI_BRANCH: ${{ vars.CI_BRANCH }}
 
-    defaults:
-      run:
-        # attention: don't use run steps before it does not exist
-        # see mkdir job below
-        working-directory: collections/ansible_collections
-
     steps:
-
-      - name: Create default working directory
-        working-directory: ${{ github.workspace }}
-        run: mkdir -p collections/ansible_collections
 
       - name: setup python
         uses: actions/setup-python@v5
@@ -101,6 +91,7 @@ jobs:
       # We use ansible-galaxy, not actions/checkout
       #
       - name: checkout ansible-collection
+        working-directory: ${{ github.workspace }}
         run: |
 
           if test "${{ inputs.repo }}" = "${{ github.repository }}"; then
