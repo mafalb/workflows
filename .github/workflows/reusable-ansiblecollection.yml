@@ -103,7 +103,7 @@ jobs:
           tree collections
 
           # set working directory for following steps
-          echo working-directory=collections/ansible_collections/$namespace/$collection_name" >>"$GITHUB_ENV"
+          echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
           
           # after that install mafalb.ansible
           ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
