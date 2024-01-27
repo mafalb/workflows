@@ -27,7 +27,7 @@ jobs:
 
       - name: bla
         run: |
-          default_branch=$(gh api repos/${{ github.repository }} --jq '.default_branch')
+          default_branch=$(GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }} --jq '.default_branch')
           echo $default_branch
 
   getenv:
