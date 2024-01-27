@@ -73,7 +73,7 @@ jobs:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
 
-     defaults:
+    defaults:
       run:
         working-directory: collections/ansible_collections/mafalb/openssh
 
