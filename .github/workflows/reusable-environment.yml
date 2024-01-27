@@ -21,6 +21,7 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   setenv:
+    runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.set_name.outputs.env_name }}
     steps:
