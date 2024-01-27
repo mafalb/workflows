@@ -96,8 +96,8 @@ jobs:
           # we determine namespace and collection_name
           # this works because we know that we installed just one collection
           #
-          namespace=$(ls collections/ansible_collections/*/)
-          collection_name=$(ls collections/ansible_collections/*/*/)
+          namespace=$(ls -d collections/ansible_collections/*/)
+          collection_name=$(ls -d collections/ansible_collections/*/*/)
 
           echo collection $namespace/$collection_name
 
