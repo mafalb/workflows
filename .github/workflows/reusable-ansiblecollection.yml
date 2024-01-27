@@ -75,7 +75,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: collections/ansible_collections/mafalb/openssh
+        working-directory: collections/ansible_collections
 
     steps:
 
