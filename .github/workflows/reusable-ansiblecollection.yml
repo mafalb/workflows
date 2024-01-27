@@ -78,7 +78,7 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      bla: ${{ vars.CI_BRANCH }}
+      CI_BRANCH: ${{ vars.CI_BRANCH }}
 
     defaults:
       run:
@@ -99,11 +99,11 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
 
-          if "${{ inputs.repo }}" = "{{ github.repository }}; then
+          if test "${{ inputs.repo }}" = "${{ github.repository }}"; then
               ref=${{ inputs.ref }}
-          elif "${{ inputs.repo }}" = "mafalb/ansible-test-collections"; then
-              test -n "${{ vars.CI_BRANCH }}"
-              ref="${{ vars.CI_BRANCH }}"
+          elif test "${{ inputs.repo }}" = "mafalb/ansible-test-collections"; then
+              test -n "$CI_BRANCH"
+              ref="$CI_BRANCH"
           else
             false
           fi
