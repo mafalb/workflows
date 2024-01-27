@@ -21,6 +21,13 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
 
+  validate_inputs:
+    runs-on: ubuntu-22.04
+    steps:
+      run: |
+        default_branch=$(gh api repos/{{ github.repository }} --jq '.default_branch')
+        echo $default_branch
+
   getenv:
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository 
