@@ -27,6 +27,6 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     uses: ./reusable-ansiblecollection.yml
     with:
-      repo: mafalb/ansible_collection_skeleton@collections
+      repo: .github/workflows/ansible_collection_skeleton@collections
     
 ...
