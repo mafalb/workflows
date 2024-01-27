@@ -11,34 +11,50 @@ on: # yamllint disable-line rule:truthy
 
   # make it reusable
   workflow_call:
-    inputs:
-      repo:
-        type: string
-        default: ${{ github.repository }}
-      ref:
-        type: string
-        default: ${{ github.sha }}
 
 jobs:
 
-  validate_inputs:
+  prepare:
     runs-on: ubuntu-22.04
+    outputs:
+      repo: ${{ steps.mangle.outputs.repo }}
+      ref: ${{ steps.mangle.outputs.ref }}
+
     steps:
 
-      - name: bla
+      - name: Set repo and ref if running on mafalb/workflows
+        id: mangle
         run: |
           default_branch=$(GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }} --jq '.default_branch')
           echo $default_branch
 
-  getenv:
-    # don't run on pull request from ourselves
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository 
-    uses: ./.github/workflows/reusable-environment.yml
+          if test "${{ github.repository }}" = "mafalb/workflows"; then
+              # CI run on mafalb/workflows
+              # mangle repo and ref
+              repo="mafalb/ansible-test-collections"
+              if  "${{ github.ref_name }}" = "main"; then
+                  ref="main"  # we know that main is the master branch of mafalb/ansible-test-collections
+              else
+                  ref="dev"
+              fi
+          else
+              # normal CI run on another repository
+              # pass through
+              repo="${{ github.repository }}"
+              ref="${{ github.sha }}"
+          fi
+          echo "::set-output name=repo::repo"
+          echo "::set-output name=ref::ref"
 
   ansible-test:
     runs-on: ubuntu-22.04
-    needs: getenv
-    environment: ${{ needs.getenv.outputs.env_name }}
+    needs: inputs
+    environment: ${{ needs.prepare.outputs.env_name }}
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      CI_REPO: ${{ needs.prepare.outputs.repo }}
+      CI_REF: ${{ needs.prepare.outputs.ref }}
 
     strategy:
       fail-fast: false
@@ -84,12 +100,12 @@ jobs:
           - ansible_version: '2.16'
             python_version: '3.12'
 
-    env:
-      PY_COLORS: 1
-      ANSIBLE_FORCE_COLOR: 1
-      CI_BRANCH: ${{ vars.CI_BRANCH }}
-
     steps:
+
+      - name: Assertions
+        run: |
+          test -n "$CI_REPO"
+          test -n "$CI_REF"
 
       - name: setup python
         uses: actions/setup-python@v5
@@ -103,17 +119,8 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
 
-          if test "${{ inputs.repo }}" = "${{ github.repository }}"; then
-              ref=${{ inputs.ref }}
-          elif test "${{ inputs.repo }}" = "mafalb/ansible-test-collections"; then
-              test -n "$CI_BRANCH"
-              ref="$CI_BRANCH"
-          else
-            false
-          fi
-          
           # install the collection we want to test
-          ansible-galaxy collection install git+${{ github.server_url }}/${{ inputs.repo }}.git,${ref} -p collections
+          ansible-galaxy collection install git+${{ github.server_url }}/${CI_REPO}.git,${CI_REF} -p collections
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
