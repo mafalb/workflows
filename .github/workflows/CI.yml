@@ -22,9 +22,24 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
 
+  lint:
+    run-on: ubuntu-22.04
+    steps:
+      - name: Checkout ourself
+        uses: action/checkout@v4
+        
+      - name: Lint config is present
+        run: |
+          test -r .yamllint
+
+      - name: Lint the YAMLs
+        run: |
+          yamllint -s .
+
   ANSIBLECOLLECTION:
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     uses: ./.github/workflows/reusable-ansiblecollection.yml
+    needs: lint
 
 ...
