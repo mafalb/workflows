@@ -13,7 +13,6 @@ on: # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       repo:
-        required: true
         type: string
         default: ${{ github.repository }}
       ref:
