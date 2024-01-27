@@ -29,7 +29,7 @@ jobs:
   ansible-test:
     runs-on: ubuntu-22.04
     needs: getenv
-    environment: ${{ needs.PRE.outputs.env_name }}
+    environment: ${{ needs.getenv.outputs.env_name }}
 
     strategy:
       fail-fast: false
