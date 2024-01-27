@@ -83,9 +83,14 @@ jobs:
     defaults:
       run:
         # attention: don't use run steps before it does not exist
+        # see mkdir job below
         working-directory: collections/ansible_collections
 
     steps:
+
+      - name: Create default working directory
+        working-directory: ${{ github.workspace }}
+        run: mkdir -p collections/ansible_collections
 
       - name: setup python
         uses: actions/setup-python@v5
@@ -96,7 +101,6 @@ jobs:
       # We use ansible-galaxy, not actions/checkout
       #
       - name: checkout ansible-collection
-        working-directory: ${{ github.workspace }}
         run: |
 
           if test "${{ inputs.repo }}" = "${{ github.repository }}"; then
@@ -128,6 +132,7 @@ jobs:
           echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
           
       - name: Checkout mafalb.ansible
+        working-directory: ${{ github.workspace }}
         run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
 
       - name: Install ansible
