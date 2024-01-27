@@ -78,6 +78,10 @@ jobs:
 
     steps:
 
+      - name: The targeted CI Branch is set
+        run: test -n "${{ vars.CI_BRANCH }}"
+      - name: The environment is set
+        run: test -n "${{ vars.CI_BRANCH }} 
       - name: setup python
         uses: actions/setup-python@v5
         with:
@@ -86,11 +90,11 @@ jobs:
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
       #
-      - name: checkout ansible-collections
+      - name: checkout ansible-collection
         working-directory: ${{ github.workspace }}
         run: |
          
-          # install collection
+          # install the collection we want to test
           ansible-galaxy collection install git+${{ github.server_url }}/${{ inputs.repo }}.git,${{ inputs.ref }} -p collections
 
           # note that namespace and collection_name are not necessarily the same
@@ -106,13 +110,13 @@ jobs:
           echo collection $namespace/$collection_name
           tree collections
 
-          # set working directory for following steps
+          # save the directory of our collection for future use
           echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
           
-          # after that install mafalb.ansible
-          ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
+      - name: Checkout mafalb.ansible
+        run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
 
-      - name: install ansible
+      - name: Install ansible
         working-directory: collections/ansible_collections/mafalb/ansible
         run: |
           tree
