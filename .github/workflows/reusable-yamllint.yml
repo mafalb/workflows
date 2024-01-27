@@ -1,0 +1,40 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: yamllint
+
+on: # yamllint disable-line rule:truthy
+
+  # make it reusable
+  workflow_call:
+    inputs:
+      env_name:
+        type: string
+    outputs:
+      env_name:
+        description: The name of the targeted environment.
+        value: ${{ jobs.setenv.outputs.env_name }}
+
+jobs:
+
+  yamllint:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout ourself
+        uses: actions/checkout@v4
+        
+      - name: Lint config is present
+        run: |
+          test -r .yamllint
+
+      - name: Lint the YAMLs
+        run: |
+          yamllint -s .
+
+...
