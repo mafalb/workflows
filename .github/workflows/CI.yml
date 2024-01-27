@@ -23,7 +23,7 @@ on: # yamllint disable-line rule:truthy
 jobs:
 
   lint:
-    run-on: ubuntu-22.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout ourself
         uses: action/checkout@v4
