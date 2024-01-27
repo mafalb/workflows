@@ -88,8 +88,9 @@ jobs:
 
       - name: The targeted CI Branch is set
         run: |
-          echo ${{ needs.PRE.outputs.env_name }}
+          echo env_name ${{ needs.getenv.outputs.env_name }}
           test -n "$bla"
+          echo vars ${{ vars }} 
           test -n "${{ vars.CI_BRANCH }}"
 
       - name: setup python
@@ -103,7 +104,6 @@ jobs:
       - name: checkout ansible-collection
         working-directory: ${{ github.workspace }}
         run: |
-         
           if test "${{ inputs.ref }}" = "__override__"; then
             ref="${{ vars.CI_BRANCH }}"
           else
