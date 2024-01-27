@@ -15,6 +15,10 @@ on: # yamllint disable-line rule:truthy
       repo:
         required: true
         type: string
+        default: ${{ github.repository }}
+      ref:
+        type: string
+        default: ${{ github.ref }}
 
 jobs:
 
@@ -83,7 +87,7 @@ jobs:
         run: |
          
           # install collection
-          ansible-galaxy collection install git+${{ github.server_url }}/${{ github.repository }}.git,${{ github.sha }} -p collections
+          ansible-galaxy collection install git+${{ github.server_url }}/${{ inputs.repo }}.git,${{ inputs.ref }} -p collections
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
