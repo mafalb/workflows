@@ -17,7 +17,7 @@ on: # yamllint disable-line rule:truthy
         default: ${{ github.repository }}
       ref:
         type: string
-        default: ${{ github.ref }}
+        default: ${{ github.sha }}
 
 jobs:
 
