@@ -43,8 +43,8 @@ jobs:
               repo="${{ github.repository }}"
               ref="${{ github.sha }}"
           fi
-          echo "::set-output name=repo::repo"
-          echo "::set-output name=ref::ref"
+          echo "::set-output name=repo::$repo"
+          echo "::set-output name=ref::$ref"
 
   ansible-test:
     runs-on: ubuntu-22.04
