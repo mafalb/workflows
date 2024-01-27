@@ -138,7 +138,6 @@ jobs:
       - name: Install ansible
         working-directory: collections/ansible_collections/mafalb/ansible
         run: |
-          tree
           ansible-playbook -D playbooks/install-ansible.yml -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}", "ansible-lint${{ matrix.ansible_lint_specifier }}", "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}' -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
         env:
           ANSIBLE_COLLECTIONS_PATH: ../../..
@@ -157,6 +156,8 @@ jobs:
       - name: yamllint
         working-directory: ${{ env.working-directory }}
         run: |
+          pwd
+          tree .
           source ~/.virtualenvs/ansible/bin/activate
           yamllint -s .
 
