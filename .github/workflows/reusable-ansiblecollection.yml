@@ -133,6 +133,7 @@ jobs:
           ansible --version | grep "^\s*python.* ${{ matrix.python_version }}"
 
       - name: yamllint
+        working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           yamllint -s .
