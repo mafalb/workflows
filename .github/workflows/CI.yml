@@ -22,28 +22,11 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
 
-    NEWCOLLECTION:
-
+  ANSIBLECOLLECTION:
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: ansible_collections/mafalb
-
-    steps:
-
-      - name: create a new collection
-        run: |
-          mkdir -p collections/ansible_collections
-          cd collections/ansible_collections
-          ansible-galaxy collection init --collection-skeleton https://github.com/mafalb/ansible_collection_skeleton mafalb.ci
-
-
-  ANSIBLECOLLECTION:
-    uses: ./reusable-ansiblecollection.yml@
+    uses: ./reusable-ansiblecollection.yml
     with:
-      repo: mafalb/ansible-collection-ansible
-    needs: NEWCOLLECTION
-
+      repo: mafalb/ansible_collection_skeleton@collections
+    
 ...

@@ -11,6 +11,11 @@ on: # yamllint disable-line rule:truthy
 
   # make it reusable
   workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+        default: ${{ github.repository }}
 
 jobs:
 
