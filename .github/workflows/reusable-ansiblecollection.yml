@@ -48,7 +48,7 @@ jobs:
 
   ansible-test:
     runs-on: ubuntu-22.04
-    needs: inputs
+    needs: prepare
     environment: ${{ needs.prepare.outputs.env_name }}
     env:
       PY_COLORS: 1
