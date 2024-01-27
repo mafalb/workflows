@@ -7,7 +7,7 @@
 
 name: yamllint
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
 
   # make it reusable
   workflow_call:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Checkout ourself
         uses: actions/checkout@v4
-        
+
       - name: Lint config is present
         run: |
           test -r .yamllint
