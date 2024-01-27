@@ -29,13 +29,12 @@ jobs:
 
   ANSIBLECOLLECTION:
     needs: PRE
-    environment:
-      name: ${{ needs.PRE.outputs.env_name }}
+    environment: ${{ needs.PRE.outputs.env_name }}
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       repo: mafalb/ansible-test-collections
-#      ref: ${{ vars.CI_BRANCH }}
+      ref: dev
 
 ...
