@@ -25,9 +25,10 @@ jobs:
   PRE:
     # don't run on pull request from ourselves
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository 
-    uses: ././github/workflows/reusable-environment.yml
+    uses: ./.github/workflows/reusable-environment.yml
 
   ANSIBLECOLLECTION:
+    needs: PRE
     environment:
       name: ${{ needs.PRE.outputs.env_name }}
     # don't run on pull request from ourselves
