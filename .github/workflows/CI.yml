@@ -28,6 +28,5 @@ jobs:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       repo: mafalb/ansible-test-collections
-      ref: __override__
 
 ...

@@ -82,16 +82,10 @@ jobs:
 
     defaults:
       run:
+        # attention: don't use run steps before it does not exist
         working-directory: collections/ansible_collections
 
     steps:
-
-      - name: The targeted CI Branch is set
-        run: |
-          echo env_name ${{ needs.getenv.outputs.env_name }}
-          test -n "$bla"
-          echo vars ${{ vars }} 
-          test -n "${{ vars.CI_BRANCH }}"
 
       - name: setup python
         uses: actions/setup-python@v5
@@ -104,10 +98,14 @@ jobs:
       - name: checkout ansible-collection
         working-directory: ${{ github.workspace }}
         run: |
-          if test "${{ inputs.ref }}" = "__override__"; then
-            ref="${{ vars.CI_BRANCH }}"
+
+          if "${{ inputs.repo }}" = "{{ github.repository }}; then
+              ref=${{ inputs.ref }}
+          elif "${{ inputs.repo }}" = "mafalb/ansible-test-collections"; then
+              test -n "${{ vars.CI_BRANCH }}"
+              ref="${{ vars.CI_BRANCH }}"
           else
-            ref="${{ inputs.ref }}"
+            false
           fi
           
           # install the collection we want to test
