@@ -16,6 +16,10 @@ jobs:
 
   prepare:
     runs-on: ubuntu-22.04
+    inputs:
+      ref:
+        type: string
+        default: ${{ github.sha }}
     outputs:
       repo: ${{ steps.mangle.outputs.repo }}
       ref: ${{ steps.mangle.outputs.ref }}
@@ -41,7 +45,7 @@ jobs:
               # normal CI run on another repository
               # pass through
               repo="${{ github.repository }}"
-              ref="${{ github.sha }}"
+              ref="${{ inputs.ref }}"
           fi
           echo "::set-output name=repo::$repo"
           echo "::set-output name=ref::$ref"
