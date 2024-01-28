@@ -27,6 +27,6 @@ jobs:
             else
                 branch="dev"
             fi
+            echo "branch=$branch\n" >> $GITHUB_OUTPUT
             echo branch=$branch
-            echo "branch=$branch" >> $GITHUB_OUTPUT
 ...
