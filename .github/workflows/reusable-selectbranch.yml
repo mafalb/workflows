@@ -23,9 +23,10 @@ jobs:
             if test "${{ inputs.targeted_branch }}" = "main"; then
                 branch="main"
             elif test "${{ github.ref_name }}" = "main"; then
-                branch="main"  # we know that main is the master branch of mafalb/ansible-test-collections
+                branch="main"
             else
                 branch="dev"
             fi
+            echo branch=$branch
             echo "branch=$branch" >> $GITHUB_OUTPUT
 ...
