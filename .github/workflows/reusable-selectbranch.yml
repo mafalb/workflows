@@ -8,6 +8,12 @@ name: PREPARE
 on:  # yamllint disable-line rule:truthy
   # make it reusable
   workflow_call:
+    inputs:
+      targeted_branch:
+          type: choice
+          options:
+            - main
+            - dev
 jobs:
   selectbranch:
     runs-on: ubuntu-22.04
@@ -17,7 +23,9 @@ jobs:
       - name: Return the targeted branch for downloads from other repositories
         id: select
         run: |
-            if  "${{ github.ref_name }}" = "main"; then
+            if test "${{ inputs.targeted_branch }} = "main"; then
+                branch="main"
+            elif test "${{ github.ref_name }}" = "main"; then
                 branch="main"  # we know that main is the master branch of mafalb/ansible-test-collections
             else
                 branch="dev"
