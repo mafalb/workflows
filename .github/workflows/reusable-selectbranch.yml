@@ -29,6 +29,6 @@ jobs:
                 branch="dev"
             fi
             echo branch="$branch" >> $GITHUB_OUTPUT
-            echo "{two}={bla}" >> $GITHUB_OUTPUT
+            echo "two=bla" >> $GITHUB_OUTPUT
             echo branch=$branch
 ...
