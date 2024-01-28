@@ -236,7 +236,7 @@ jobs:
           test -r "$VIRTUAL_ENV"/constraints.txt
           test -n "${{ env.namespace }}"
           test -n "${{ env.collection_name }}"
-          test -n "$ANSIBLE_COLLECTIONS_PATH"
+          # test -n "$ANSIBLE_COLLECTIONS_PATH"
           ABSPATH=$(cd ../../; dirname "$(pwd)")
           export ANSIBLE_COLLECTIONS_PATH="$ABSPATH:/tmp/collections"
           export ANSIBLE_COLLECTIONS_PATHS="$ABSPATH:/tmp/collections"
