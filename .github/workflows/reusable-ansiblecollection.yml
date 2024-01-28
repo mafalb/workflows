@@ -247,7 +247,7 @@ jobs:
             --dest-dir tests/output/doc ${{ env.namespace }}.${{ env.collection_name }}
           echo VIRTUAL_ENV $VIRTUAL_ENV
           echo $ANSIBLE_COLLECTIONS_PATH
-          #antsibull-docs lint-collection-docs --plugin-docs --no-skip-rstcheck .
+          antsibull-docs lint-collection-docs --plugin-docs --no-skip-rstcheck .
           echo gugu
           cd tests/output/doc
           pip install -r requirements.txt -c "$VIRTUAL_ENV"/constraints.txt
