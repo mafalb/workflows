@@ -47,8 +47,8 @@ jobs:
               repo="${{ github.repository }}"
               ref="${{ inputs.ref }}"
           fi
-          run: echo "{repo}={$repo}" >> $GITHUB_OUTPUT
-          run: echo "{ref}={$ref}" >> $GITHUB_OUTPUT
+          echo "repo=$repo" >> $GITHUB_OUTPUT
+          echo "ref=$ref" >> $GITHUB_OUTPUT
 
   ansible-test:
     runs-on: ubuntu-22.04
