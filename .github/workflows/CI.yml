@@ -34,7 +34,7 @@ jobs:
   SELECTBRANCH:
     uses: ./.github/workflows/reusable-selectbranch.yml
     with:
-      branch: ${{ inputs.targeted_branch }}
+      targeted_branch: ${{ inputs.targeted_branch }}
     needs: lint
 
   ANSIBLECOLLECTION:
