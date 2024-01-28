@@ -228,6 +228,22 @@ jobs:
           source ~/.virtualenvs/ansible/bin/activate
           ansible-test integration --requirements --python ${{ matrix.python_version }}
 
+      - name: mock a role to make documentation test pass
+        if: matrix.ansible_version != 2.12
+        working-directory: ${{ env.working-directory }}
+          mkdir roles/roleX
+          mkdir roles/roleX/{meta,tasks}
+          echo --- >roles/roleX/tasks/main.yml
+          YAML=$(cat <<- YAML
+                 ---
+                 argument_specs:
+                   main:
+                     short_description: Bla
+                     description:
+                       - Bla
+          YAML
+          echo "$YAML" >roles/roleX/meta/main.yml
+
       - name: docs
         if: matrix.ansible_version != '2.12'
         working-directory: ${{ env.working-directory }}
