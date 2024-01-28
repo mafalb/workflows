@@ -17,7 +17,7 @@ on:  # yamllint disable-line rule:truthy
         default: ${{ github.sha }}
       mock:
         type: boolean
-        default: False
+        default: false
 
 jobs:
 
@@ -232,7 +232,7 @@ jobs:
           ansible-test integration --requirements --python ${{ matrix.python_version }}
 
       - name: mock a role to make documentation test pass
-        if: matrix.ansible_version != 2.12 and ${{ inputs.mock }} == True
+        if: matrix.ansible_version != 2.12 and ${{ inputs.mock }} == true
         working-directory: ${{ env.working-directory }}
         run: |
           mkdir -p roles/role1
