@@ -10,10 +10,7 @@ on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       targeted_branch:
-          type: choice
-          options:
-            - main
-            - dev
+          type: string
 jobs:
   selectbranch:
     runs-on: ubuntu-22.04
