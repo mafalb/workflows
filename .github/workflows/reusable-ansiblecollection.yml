@@ -231,7 +231,8 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
-          antsibull-docs sphinx-init --use-current --copyright "Markus Falb (c) <markus.falb@mafalb.at> GPL-3.0-or-later" --dest-dir tests/output/doc mafalb.ansible
+          mkdir -p tests/output/doc
+          antsibull-docs sphinx-init --use-current --copyright "Markus Falb (c) <markus.falb@mafalb.at> GPL-3.0-or-later" --dest-dir tests/output/doc $CI_REPO
           antsibull-docs lint-collection-docs --plugin-docs --no-skip-rstcheck .
           cd tests/output/doc
 	        pip install -r requirements.txt -c "$VIRTUAL_ENV"/constraints.txt
