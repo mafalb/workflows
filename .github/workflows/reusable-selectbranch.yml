@@ -15,10 +15,10 @@ jobs:
   selectbranch:
     runs-on: ubuntu-22.04
     outputs:
-      ref: ${{ steps.select.outputs.branch }}
+      ref: ${{ steps.stepx.outputs.branch }}
     steps:
       - name: Return the targeted branch for downloads from other repositories
-        id: select
+        id: stepx
         run: |
             if test "${{ inputs.targeted_branch }}" = "main"; then
                 branch="main"
@@ -27,6 +27,6 @@ jobs:
             else
                 branch="dev"
             fi
-            echo "branch=$branch\n" >> $GITHUB_OUTPUT
+            echo branch="$branch" >> $GITHUB_OUTPUT
             echo branch=$branch
 ...
