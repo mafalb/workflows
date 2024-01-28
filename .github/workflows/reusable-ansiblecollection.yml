@@ -141,8 +141,8 @@ jobs:
 
           # save the directory of our collection for future use
           echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
-          echo "collection_name=$collection_name" >>$GITHUB_OUTPUT
-          echo "namespace=$namespace" >>$GITHUB_OUTPUT
+          echo "collection_name=$collection_name" >>$GITHUB_ENV
+          echo "namespace=$namespace" >>$GITHUB_ENV
 
       - name: Checkout mafalb.ansible
         working-directory: ${{ github.workspace }}
@@ -236,6 +236,8 @@ jobs:
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           test -r "$VIRTUAL_ENV"/constraints.txt
+          test -n "${{ env.namespace }}"
+          test -n "${{ env.collection_name }}"
           ansible-galaxy collection install community.general -p /tmp/collections
           mkdir -p tests/output/doc
           antsibull-docs sphinx-init --use-current \
