@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       ref: ${{ steps.stepx.outputs.branch }}
+      x: ${{ steps.stepx.outputs.two }}
     steps:
       - name: Return the targeted branch for downloads from other repositories
         id: stepx
@@ -28,5 +29,6 @@ jobs:
                 branch="dev"
             fi
             echo branch="$branch" >> $GITHUB_OUTPUT
+            echo two="bla" >> $GITHUB_OUTPUT
             echo branch=$branch
 ...
