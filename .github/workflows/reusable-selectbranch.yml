@@ -1,0 +1,26 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+name: PREPARE
+on:  # yamllint disable-line rule:truthy
+  # make it reusable
+  workflow_call:
+jobs:
+  selectbranch:
+    runs-on: ubuntu-22.04
+    outputs:
+      ref: ${{ steps.select.outputs.branch }}
+    steps:
+      - name: Return the targeted branch for downloads from other repositories
+        id: select
+        run: |
+            if  "${{ github.ref_name }}" = "main"; then
+                branch="main"  # we know that main is the master branch of mafalb/ansible-test-collections
+            else
+                branch="dev"
+            fi
+            echo "branch=$branch" >> $GITHUB_OUTPUT
+...
