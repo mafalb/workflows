@@ -11,11 +11,13 @@ on:  # yamllint disable-line rule:truthy
     inputs:
       targeted_branch:
         type: string
+    outputs:
+      ref: ${{ steps.stepx.outputs.branch }}
+      
 jobs:
   selectbranch:
     runs-on: ubuntu-22.04
     outputs:
-      ref: ${{ steps.stepx.outputs.branch }}
       x: ${{ steps.stepx.outputs.two }}
     steps:
       - name: Return the targeted branch for downloads from other repositories
