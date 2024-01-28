@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/reusable-yamllint.yml
 
   SELECTBRANCH:
-    uses: ././github/workflows/reusable-selectbranch.yml
+    uses: ./.github/workflows/reusable-selectbranch.yml
     with:
       branch: ${{ inputs.targeted_branch }}
     needs: lint
