@@ -248,6 +248,7 @@ jobs:
           echo gugu
           cd tests/output/doc
           pip install -r requirements.txt -c "$VIRTUAL_ENV"/constraints.txt
+          echo ogo
           ./build.sh
 
 ...
