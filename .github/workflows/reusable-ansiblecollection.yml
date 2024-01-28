@@ -231,8 +231,6 @@ jobs:
       - name: docs
         if: matrix.ansible_version != '2.12'
         working-directory: ${{ env.working-directory }}
-        env:
-          ANSIBLE_COLLECTIONS_PATH: "../../..:/tmp/collections"
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           test -r "$VIRTUAL_ENV"/constraints.txt
@@ -241,6 +239,7 @@ jobs:
           test -n "$ANSIBLE_COLLECTIONS_PATH"
           ABSPATH=$(cd ../../; dirname "$(pwd)")
           export ANSIBLE_COLLECTIONS_PATH="$ABSPATH:/tmp/collections"
+          export ANSIBLE_COLLECTIONS_PATHS="$ABSPATH:/tmp/collections"
           ansible-galaxy collection install community.general -p /tmp/collections
           mkdir -p tests/output/doc
           antsibull-docs sphinx-init --use-current \
@@ -254,5 +253,6 @@ jobs:
           pip install -r requirements.txt -c "$VIRTUAL_ENV"/constraints.txt
           echo ogo
           ./build.sh
+          echo bla
 
 ...
