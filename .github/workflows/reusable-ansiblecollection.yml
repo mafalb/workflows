@@ -230,9 +230,10 @@ jobs:
         if: matrix.ansible_version != '2.12'
         working-directory: ${{ env.working-directory }}
         env:
-          ANSIBLE_COLLECTIONS_PATH: ../../..
+          ANSIBLE_COLLECTIONS_PATH: ../../..:/tmp/collections
         run: |
           source ~/.virtualenvs/ansible/bin/activate
+          ansible-galaxy collection install community.general -p /tmp/collections
           mkdir -p tests/output/doc
           antsibull-docs sphinx-init --use-current --copyright "Markus Falb (c) <markus.falb@mafalb.at> GPL-3.0-or-later" --dest-dir tests/output/doc $CI_REPO
           antsibull-docs lint-collection-docs --plugin-docs --no-skip-rstcheck .
