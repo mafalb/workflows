@@ -231,12 +231,12 @@ jobs:
       - name: mock a role to make documentation test pass
         if: matrix.ansible_version != 2.12
         working-directory: ${{ env.working-directory }}
-          mkdir roles/roleX
-          mkdir roles/roleX/{meta,tasks}
-          echo --- >roles/roleX/tasks/main.yml
-          echo -e "---\nargument_specs:\n  main:\n    " >roles/roleX/meta/main.yml
-          echo -e "short_description: Bla\n    description:\n      " >>roles/roleX/meta/main.yml
-          echo -e "- Bla" >>roles/roleX/meta/main.yml
+        run: |
+          mkdir -p roles/roleX
+          mkdir -p roles/roleX/{meta,tasks}
+          echo -en "---\nargument_specs:\n  main:\n    " >roles/roleX/meta/main.yml
+          echo -en "short_description: Bla\n    description:\n      " >>roles/roleX/meta/main.yml
+          echo -en "- Bla\n" >>roles/roleX/meta/main.yml
 
       - name: docs
         if: matrix.ansible_version != '2.12'
