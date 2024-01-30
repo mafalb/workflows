@@ -32,8 +32,8 @@ jobs:
       - name: Set repo and ref if running on mafalb/workflows
         id: mangle
         run: |
-          default_branch=$(GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }} --jq '.default_branch')
-          echo $default_branch
+          default_branch="$(GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }} --jq '.default_branch')"
+          echo "$default_branch"
 
           if test "${{ github.repository }}" = "mafalb/workflows"; then
               # CI run on mafalb/workflows
@@ -50,13 +50,12 @@ jobs:
               repo="${{ github.repository }}"
               ref="${{ inputs.ref }}"
           fi
-          echo "repo=$repo" >> $GITHUB_OUTPUT
-          echo "ref=$ref" >> $GITHUB_OUTPUT
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
   ansible-test:
     runs-on: ubuntu-22.04
     needs: prepare
-    environment: ${{ needs.prepare.outputs.env_name }}
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
@@ -129,7 +128,7 @@ jobs:
         run: |
           ansible-playbook -D playbooks/install-ansible.yml \
             -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
-                                        "ansible-lint${{ matrix.ansible_lint_specifier }}",
+                                        "ansible-lint",
                                         "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
             -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
         env:
@@ -153,6 +152,8 @@ jobs:
           ansible-galaxy collection list
           deactivate
           rm -fr collections/ansible_collections/mafalb/ansible
+        env:
+          ANSIBLE_COLLECTIONS_PATH: collections
 
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
@@ -237,7 +238,7 @@ jobs:
       - name: integration tests
         working-directory: ${{ env.working-directory }}
         run: |
-          source ~/.virtualenvs/ansible/bin/activate
+          source "$HOME/.virtualenvs/ansible/bin/activate"
           ansible-test integration --requirements --python ${{ matrix.python_version }}
 
       - name: mock a role to make documentation test pass
