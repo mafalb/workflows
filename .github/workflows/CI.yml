@@ -21,6 +21,7 @@ on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
     inputs:
       targeted_branch:
+        description: The name of the target branch on other repositories
         type: choice
         options:
           - dev
@@ -31,13 +32,13 @@ jobs:
   lint:
     uses: ./.github/workflows/reusable-yamllint.yml
 
-  SELECTBRANCH:
+  selectbranch:
     uses: ./.github/workflows/reusable-selectbranch.yml
     with:
       targeted_branch: ${{ inputs.targeted_branch }}
     needs: lint
 
-  ANSIBLECOLLECTION:
+  ansiblecollection:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     needs:
       - lint
