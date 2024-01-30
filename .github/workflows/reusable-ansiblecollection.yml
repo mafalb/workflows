@@ -193,7 +193,7 @@ jobs:
       - name: lint
         working-directory: ${{ env.working-directory }}
         env:
-          ANSIBLE_COLLECTIONS_PATH: /tmp/collections
+          ANSIBLE_COLLECTIONS_PATH: collections:/tmp/collections
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           mkdir /tmp/collections
