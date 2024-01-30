@@ -41,6 +41,6 @@ jobs:
     needs: selectbranch
     steps:
       - name: Check that @dev is not used in main
-        if: needs.selectbranch.outputs.ref == "main"
+        if: ${{ needs.selectbranch.outputs.ref == "main" }}
         run: grep @dev .github/workflows/*.yml || false
 ...
