@@ -192,8 +192,11 @@ jobs:
 
       - name: lint
         working-directory: ${{ env.working-directory }}
+        env:
+          ANSIBLE_COLLECTIONS_PATH: /tmp/collections
         run: |
           source ~/.virtualenvs/ansible/bin/activate
+          mkdir /tmp/collections
           echo ansible-galaxy
           ansible-galaxy collection list -vvv
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
