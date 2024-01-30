@@ -149,9 +149,8 @@ jobs:
       - name: Remove the downloaded collection again
         run: |
           source ~/.virtualenvs/ansible/bin/activate
-          ansible-galaxy collection list
-          deactivate
           rm -fr collections/ansible_collections/mafalb/ansible
+          ansible-galaxy collection list
         env:
           ANSIBLE_COLLECTIONS_PATH: collections
 
@@ -195,6 +194,8 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
+          echo ansible-galaxy
+          ansible-galaxy collection list
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
           if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
               if test -f .ansible-lint-4; then
