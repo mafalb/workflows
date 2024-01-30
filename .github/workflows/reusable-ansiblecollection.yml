@@ -194,7 +194,6 @@ jobs:
         working-directory: ${{ env.working-directory }}
         env:
           ANSIBLE_COLLECTIONS_PATH: /tmp/collections
-          ANSIBLE_COLLECTIONS_PATHS: /tmp/collections
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           mkdir /tmp/collections
