@@ -24,10 +24,11 @@ jobs:
 
   fail_on_purpose:
     if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
-    uses: ./.github/workflows/reusable-fail.yml
+    uses: ./.github/workflows/fail.yml
 
   allsuccess:
     if: |
+      ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
       always()
     uses: ./.github/workflows/reusable-allsuccess.yml
     with:
@@ -36,7 +37,9 @@ jobs:
 
   it_failed:
     runs-on: ubuntu-22.04
-    if: always()
+    if:
+      ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
+      always()
     needs:
       - allsuccess
     env:
