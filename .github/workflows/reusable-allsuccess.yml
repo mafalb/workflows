@@ -26,6 +26,8 @@ jobs:
       - name: Debug
         run: |
           echo "${{ github.event.pull_request.head.repo.full_name }}"
+          echo ${{ ! github.event.pull_request.head.repo.full_name == github.repository }}
+          echo ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
       - name: Decide whether the needed jobs succeeded or failed
         # Avoid running twice when pull-request from same repo
         if: ${{ ! github.event.pull_request.head.repo.full_name == github.repository }}
