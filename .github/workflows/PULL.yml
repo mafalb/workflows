@@ -33,5 +33,9 @@ jobs:
       ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
     uses: ./.github/workflows/reusable-allsuccess.yml
     with:
-      joblist: "['lint','selectbranch','ansiblecollections']"
+      joblist: ${{ toJSON(needs) }}
+    needs:
+      - lint
+      - selectbranch
+      - ansiblecollection
 ...
