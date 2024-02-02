@@ -40,7 +40,7 @@ jobs:
     needs: lint
 
   allsuccess:
-    if: success || failure
+    if: success() || failure()
     uses: ./.github/workflows/reusable-allsuccess.yml
     with:
       joblist: ${{ toJSON(needs) }}
