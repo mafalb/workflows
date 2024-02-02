@@ -59,6 +59,7 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_COLLECTIONS_PATH: "$HOME/.ansible/collections"
       CI_REPO: ${{ needs.prepare.outputs.repo }}
       CI_REF: ${{ needs.prepare.outputs.ref }}
 
@@ -119,20 +120,20 @@ jobs:
           python-version: ${{ matrix.python_version }}
 
       # We use the stable branch
-      - name: Checkout mafalb.ansible
+      - name: Checkout mafalb.ansible - we need it for tests
         working-directory: ${{ github.workspace }}
         run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
 
       - name: Install ansible
         working-directory: collections/ansible_collections/mafalb/ansible
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
           ansible-playbook -D playbooks/install-ansible.yml \
             -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
                                         "ansible-lint",
                                         "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
             -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
-        env:
-          ANSIBLE_COLLECTIONS_PATH: ../../..
 
       - name: check ansible version
         run: |
@@ -147,17 +148,17 @@ jobs:
 
       # Move it out of the way, it could be that we want to test an unstable version of it
       - name: Remove the downloaded collection again
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           rm -fr collections/ansible_collections/mafalb/ansible
           ansible-galaxy collection list
-        env:
-          ANSIBLE_COLLECTIONS_PATH: collections
 
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
       #
-      - name: checkout ansible-collection
+      - name: Checkout the collection we want to test
         working-directory: ${{ github.workspace }}
         run: |
 
@@ -193,13 +194,13 @@ jobs:
       - name: lint
         working-directory: ${{ env.working-directory }}
         env:
-          ANSIBLE_COLLECTIONS_PATH: collections:/tmp/collections
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           mkdir /tmp/collections
           echo ansible-galaxy
           set -x
-          ansible-galaxy collection list -p /tmp/collections
+          ansible-galaxy collection list
           cat requirements.yml
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
           if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
@@ -260,6 +261,8 @@ jobs:
       - name: docs
         if: matrix.ansible_version != '2.12'
         working-directory: ${{ env.working-directory }}
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           test -r "$VIRTUAL_ENV"/constraints.txt
@@ -267,9 +270,10 @@ jobs:
           test -n "${{ env.collection_name }}"
           # test -n "$ANSIBLE_COLLECTIONS_PATH"
           ABSPATH=$(cd ../../; dirname "$(pwd)")
-          export ANSIBLE_COLLECTIONS_PATH="$ABSPATH:/tmp/collections"
-          export ANSIBLE_COLLECTIONS_PATHS="$ABSPATH:/tmp/collections"
-          ansible-galaxy collection install community.general -p /tmp/collections
+          #export ANSIBLE_COLLECTIONS_PATH="$ABSPATH:/tmp/collections"
+          #export ANSIBLE_COLLECTIONS_PATHS="$ABSPATH:/tmp/collections"
+          #ansible-galaxy collection install community.general -p /tmp/collections
+          #ansible-galaxy collection install community.general
           mkdir -p tests/output/doc
           antsibull-docs sphinx-init --use-current \
             --copyright "Markus Falb (c) <markus.falb@mafalb.at> GPL-3.0-or-later" \
