@@ -5,7 +5,7 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
-name: CI
+name: ALLSUCCESS
 
 on:  # yamllint disable-line rule:truthy
 
@@ -34,7 +34,9 @@ jobs:
 
   it_failed:
     runs-on: ubuntu-22.04
-    if: always()
+    if: |
+      ${{ ! github.event.pull_request.head.repo.full_name == github.repository }} &&
+      always()
     needs:
       - allsuccess
     env:
