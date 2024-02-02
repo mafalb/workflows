@@ -33,7 +33,9 @@ jobs:
           echo "${{ github.event.pull_request.head.repo.full_name }}"
           echo "${{ ! github.event.pull_request.head.repo.full_name == github.repository }}"
           echo "${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}"
+          echo ${{ inputs.joblist }}
           echo ${{ toJSON(inputs.joblist) }}
+
 
       - name: Decide whether the needed jobs succeeded or failed
         # Avoid running twice when pull-request from same repo
@@ -42,5 +44,5 @@ jobs:
         uses: re-actors/alls-green@release/v1
         with:
           # already in json format
-          jobs: ${{ toJSON(inputs.joblist) }}
+          jobs: ${{ inputs.joblist }}
 ...
