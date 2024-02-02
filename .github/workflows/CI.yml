@@ -40,8 +40,12 @@ jobs:
     needs: lint
 
   allsuccess:
-    if: always()
+    if: success || failure
     uses: ./.github/workflows/reusable-allsuccess.yml
     with:
-      joblist: "['lint','selectbranch','ansiblecollections']"
+      joblist: ${{ toJSON(needs) }}
+    needs:
+      - lint
+      - selectbranch
+      - ansiblecollections
 ...
