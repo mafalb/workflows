@@ -1,0 +1,44 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+# call it with
+# if: always()
+#
+name: CI
+on:  # yamllint disable-line rule:truthy
+  # make it reusable
+  workflow_call:
+    inputs:
+      joblist:
+        # if your argument was a list, we have it in json here
+        type: string
+      continue-on-error:
+        type: boolean
+        default: false
+
+jobs:
+
+  checksuccess:
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+
+      - name: Debug
+        run: |
+          echo "${{ github.event.pull_request.head.repo.full_name }}"
+          echo "${{ ! github.event.pull_request.head.repo.full_name == github.repository }}"
+          echo "${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}"
+
+      - name: Decide whether the needed jobs succeeded or failed
+        # Avoid running twice when pull-request from same repo
+        if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: re-actors/alls-green@release/v1
+        with:
+          # already in json format
+          jobs: ${{ toJSON(fromJSON(inputs.joblist)) }}
+...

@@ -5,8 +5,7 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
-name: CI
-
+name: FAILONPURPOSE
 on:  # yamllint disable-line rule:truthy
   push:
     branches:
@@ -24,12 +23,9 @@ on:  # yamllint disable-line rule:truthy
         options:
           - dev
           - main
-
 jobs:
 
-  ci:
+  fail:
     if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
-    uses: ./.github/workflows/ci-CI.yml
-    with:
-      targeted_branch: ${{ inputs.targeted_branch }}
+    uses: ./.github/workflows/ci-FAILONPURPOSE.yml
 ...
