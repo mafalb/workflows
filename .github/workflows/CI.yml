@@ -15,6 +15,7 @@ on:  # yamllint disable-line rule:truthy
       - '*'
   schedule:
     - cron: '48 11 * * 5'
+  pull_request:
   workflow_dispatch:
     inputs:
       targeted_branch:
