@@ -41,5 +41,5 @@ jobs:
         uses: re-actors/alls-green@release/v1
         with:
           # already in json format
-          jobs: ${{ inputs.joblist }}
+          jobs: ${{ toJSON(fromJSON(inputs.joblist) }}
 ...
