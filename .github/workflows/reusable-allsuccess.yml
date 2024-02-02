@@ -37,7 +37,6 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         # Avoid running twice when pull-request from same repo
         if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
-        continue-on-error: ${{ inputs.continue-on-error }}
         uses: re-actors/alls-green@release/v1
         with:
           # already in json format
