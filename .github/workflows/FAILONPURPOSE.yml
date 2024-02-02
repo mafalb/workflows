@@ -37,8 +37,7 @@ jobs:
   it_failed:
     runs-on: ubuntu-22.04
     if:
-      (success() || failure()) &&
-      ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
+      (success() || failure())
     needs:
       - allsuccess
     env:
