@@ -19,7 +19,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
-  allok:
+  checksuccess:
     if: always()
     runs-on: ubuntu-22.04
     steps:
