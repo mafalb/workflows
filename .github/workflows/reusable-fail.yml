@@ -1,0 +1,21 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: TEST
+on:  # yamllint disable-line rule:truthy
+  # make it reusable
+  workflow_call:
+
+jobs:
+
+  fail_on_purpose:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: fail
+        run: |
+          false
+...

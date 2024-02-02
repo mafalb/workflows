@@ -1,0 +1,45 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: CI
+
+on:  # yamllint disable-line rule:truthy
+
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*'
+  pull_request:
+  pull_request_review:
+  schedule:
+    - cron: '48 11 * * 5'
+  workflow_dispatch:
+
+jobs:
+
+  fail_on_purpose:
+    uses: ./.github/workflows/reusable-fail.yml
+
+  allsuccess:
+    if: always()
+    uses: ./.github/workflows/reusable-allsuccess.yml
+    with:
+      joblist: "['fail_on_purpose']"
+
+  it_failed:
+    runs-on: ubuntu-22.04
+    if: always()
+    needs:
+      - allsuccess
+    env:
+      RESULT: "${{ needs.allsuccess.result }}"
+    steps:
+      - name: Check that the allsuccess job failed
+        run: |
+          test "$RESULT" = "failure"
+...
