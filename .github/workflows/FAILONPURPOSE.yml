@@ -7,8 +7,22 @@
 
 name: FAILONPURPOSE
 on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*'
+  schedule:
+    - cron: '48 11 * * 5'
   pull_request:
-
+  workflow_dispatch:
+    inputs:
+      targeted_branch:
+        description: The name of the target branch on other repositories
+        type: choice
+        options:
+          - dev
+          - main
 jobs:
 
   fail:
