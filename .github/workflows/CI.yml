@@ -47,5 +47,5 @@ jobs:
     needs:
       - lint
       - selectbranch
-      - ansiblecollections
+      - ansiblecollection
 ...
