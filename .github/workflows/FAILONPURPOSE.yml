@@ -33,7 +33,8 @@ jobs:
     with:
       joblist: "['fail_on_purpose']"
       continue-on-error: true
-    needs: fail_on_purpose
+    needs:
+      - fail_on_purpose
 
   it_failed:
     runs-on: ubuntu-22.04
