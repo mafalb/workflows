@@ -27,7 +27,6 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   lint:
-    if: ${{ ! github.event.pull_request.head.repo.full_name == github.repository }}
     uses: ./.github/workflows/reusable-yamllint.yml
 
   selectbranch:
@@ -38,8 +37,7 @@ jobs:
 
   ansiblecollection:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
-    needs:
-      - lint
+    needs: lint
 
   allsuccess:
     if: always()
