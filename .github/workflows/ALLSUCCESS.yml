@@ -36,9 +36,7 @@ jobs:
 
   it_failed:
     runs-on: ubuntu-22.04
-    if: |
-      ${{ ! github.event.pull_request.head.repo.full_name == github.repository }} &&
-      always()
+    if: always()
     needs:
       - allsuccess
     env:
