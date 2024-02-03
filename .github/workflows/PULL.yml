@@ -12,7 +12,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   sanity:
-    if: github.base_ref == "main"
+    if: github.base_ref == 'main'
     runs-on: ubuntu-22.04
     env:
       BASE_BRANCH: ${{ github.base_ref }}
