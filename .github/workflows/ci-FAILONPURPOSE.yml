@@ -13,7 +13,7 @@ jobs:
 
   fail_on_purpose:
     if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
-    uses: ./mafalb/workflows/.github/workflows/ci-fail.yml@dev
+    uses: mafalb/workflows/.github/workflows/ci-fail.yml@dev
 
   allsuccess:
     if: |
