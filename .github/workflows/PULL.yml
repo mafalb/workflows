@@ -12,7 +12,6 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   sanity:
-    if: github.base_ref == 'main'
     runs-on: ubuntu-22.04
     env:
       BASE_BRANCH: ${{ github.base_ref }}
@@ -24,6 +23,7 @@ jobs:
       - name: Check for @dev references to reusable workflows
         run: |
           grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?" && false
+
   allsuccess:
     if: success() || failure()
     uses: ./.github/workflows/reusable-allsuccess.yml
