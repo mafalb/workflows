@@ -5,16 +5,9 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
+# Disable, not much worth it
 name: FailOnPurpose
 on:  # yamllint disable-line rule:truthy
-  push:
-    branches:
-      - '**'
-    tags-ignore:
-      - '*'
-  schedule:
-    - cron: '48 11 * * 5'
-  pull_request:
   workflow_dispatch:
     inputs:
       targeted_branch:
