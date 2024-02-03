@@ -25,9 +25,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check for @dev references to reusable workflows
-        if: |
-          github.base_ref == 'main'  # pull_request against main
-          || github.ref_name == 'main'
+        # pull_request against main or branch is main
+        if: github.base_ref == 'main' || github.ref_name == 'main'
         run: |
           grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?" && false
 
