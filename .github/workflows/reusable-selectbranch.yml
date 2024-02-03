@@ -30,6 +30,9 @@ jobs:
                 branch="main"
             elif test "${{ github.ref_name }}" = "main"; then
                 branch="main"
+            elif test "${{ github.base_ref }}" = "main"; then
+                # pull-request
+                branch="main"
             else
                 branch="dev"
             fi
