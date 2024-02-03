@@ -45,6 +45,6 @@ jobs:
           test -n "${{ needs.selectbranch.outputs.ref }}"
           if test "${{ needs.selectbranch.outputs.ref }}" = "main"
           then
-            grep @dev .github/workflows/*.yml || false
+            grep .yml@dev .github/workflows/*.yml || false
           fi
 ...
