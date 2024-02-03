@@ -28,7 +28,7 @@ jobs:
         # pull_request against main or branch is main
         if: github.base_ref == 'main' || github.ref_name == 'main'
         run: |
-          grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?" && false
+          ! grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?"
 
   allsuccess:
     if: success() || failure()
