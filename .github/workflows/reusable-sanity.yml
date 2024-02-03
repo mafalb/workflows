@@ -5,21 +5,31 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
-name: PULLREQUEST
+name: Sanity
+
 on:  # yamllint disable-line rule:truthy
-  pull_request:
+
+  # make it reusable
+  workflow_call:
+    inputs:
+      targeted_branch:
+        type: string
 
 jobs:
 
-  sanity:
-    runs-on: ubuntu-22.04
+  reusables:
+
+    runs-on: ubuntu-latest
     env:
       BASE_BRANCH: ${{ github.base_ref }}
+      HEAD_BRANCH: ${{ github.ref_name }}
 
     steps:
 
       - name: Debug
-        run: echo "$BASE_BRANCH"
+        run: |
+          echo "$BASE_BRANCH"
+          echo "$HEAD_BRANCH"
 
       - name: Checkout ourself
         uses: actions/checkout@v4
@@ -29,13 +39,5 @@ jobs:
         if: github.base_ref == 'main' || github.ref_name == 'main'
         run: |
           ! grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?"
-
-  allsuccess:
-    if: success() || failure()
-    uses: ./.github/workflows/reusable-allsuccess.yml
-    with:
-      joblist: ${{ toJSON(needs) }}
-    needs:
-      - sanity
 
 ...
