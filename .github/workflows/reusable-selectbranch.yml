@@ -30,21 +30,12 @@ jobs:
                 branch="main"
             elif test "${{ github.ref_name }}" = "main"; then
                 branch="main"
+            elif test "${{ github.base_ref }}" = "main"; then
+                # pull-request
+                branch="main"
             else
                 branch="dev"
             fi
             echo branch="$branch" >> $GITHUB_OUTPUT
             echo branch=$branch
-
-  checkuses:
-    runs-on: ubuntu-22.04
-    needs: selectbranch
-    steps:
-      - name: Check that @dev is not used in main
-        run: |
-          test -n "${{ needs.selectbranch.outputs.ref }}"
-          if test "${{ needs.selectbranch.outputs.ref }}" = "main"
-          then
-            grep @dev .github/workflows/*.yml || false
-          fi
 ...

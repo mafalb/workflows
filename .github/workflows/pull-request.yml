@@ -1,0 +1,41 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: PULLREQUEST
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+
+jobs:
+
+  sanity:
+    runs-on: ubuntu-22.04
+    env:
+      BASE_BRANCH: ${{ github.base_ref }}
+
+    steps:
+
+      - name: Debug
+        run: echo "$BASE_BRANCH"
+
+      - name: Checkout ourself
+        uses: actions/checkout@v4
+
+      - name: Check for @dev references to reusable workflows
+        # pull_request against main or branch is main
+        if: github.base_ref == 'main' || github.ref_name == 'main'
+        run: |
+          grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?" && false
+
+  allsuccess:
+    if: success() || failure()
+    uses: ./.github/workflows/reusable-allsuccess.yml
+    with:
+      joblist: ${{ toJSON(needs) }}
+    needs:
+      - sanity
+
+...
