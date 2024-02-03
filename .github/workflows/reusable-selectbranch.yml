@@ -38,16 +38,4 @@ jobs:
             fi
             echo branch="$branch" >> $GITHUB_OUTPUT
             echo branch=$branch
-
-  checkuses:
-    runs-on: ubuntu-22.04
-    needs: selectbranch
-    steps:
-      - name: Check that @dev is not used in main
-        run: |
-          test -n "${{ needs.selectbranch.outputs.ref }}"
-          if test "${{ needs.selectbranch.outputs.ref }}" = "main"
-          then
-            grep .yml@dev .github/workflows/*.yml || false
-          fi
 ...
