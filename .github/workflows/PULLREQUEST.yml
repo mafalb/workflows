@@ -5,27 +5,20 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
-name: CI
+name: Pullrequest
 on:  # yamllint disable-line rule:truthy
-  workflow_call:
-    inputs:
-      targeted_branch:
-        type: string
+  pull_request:
 
 jobs:
 
-  lint:
-    uses: ./.github/workflows/reusable-yamllint.yml
-
   selectbranch:
     uses: ./.github/workflows/reusable-selectbranch.yml
-    with:
-      targeted_branch: ${{ inputs.targeted_branch }}
-    needs: lint
 
-  ansiblecollection:
-    uses: ./.github/workflows/reusable-ansiblecollection.yml
-    needs: lint
+  sanity:
+    uses: ./.github/workflows/reusable-sanity.yml
+    with:
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+    needs: selectbranch
 
   allsuccess:
     if: success() || failure()
@@ -33,7 +26,7 @@ jobs:
     with:
       joblist: ${{ toJSON(needs) }}
     needs:
-      - lint
       - selectbranch
-      - ansiblecollection
+      - sanity
+
 ...

@@ -5,7 +5,7 @@
 # see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
 ---
 
-name: TEST
+name: Test
 on:  # yamllint disable-line rule:truthy
   # make it reusable
   workflow_call:

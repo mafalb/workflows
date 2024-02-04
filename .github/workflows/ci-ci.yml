@@ -1,0 +1,39 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: Ci
+on:  # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      targeted_branch:
+        type: string
+
+jobs:
+
+  lint:
+    uses: ./.github/workflows/reusable-yamllint.yml
+
+  selectbranch:
+    uses: ./.github/workflows/reusable-selectbranch.yml
+    with:
+      targeted_branch: ${{ inputs.targeted_branch }}
+    needs: lint
+
+  ansiblecollection:
+    uses: ./.github/workflows/reusable-ansiblecollection.yml
+    needs: lint
+
+  allsuccess:
+    if: success() || failure()
+    uses: ./.github/workflows/reusable-allsuccess.yml
+    with:
+      joblist: ${{ toJSON(needs) }}
+    needs:
+      - lint
+      - selectbranch
+      - ansiblecollection
+...
