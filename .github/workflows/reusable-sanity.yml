@@ -40,4 +40,6 @@ jobs:
         run: |
           ! grep -v grep .github/workflows/*.yml | grep -E "workflows/.*yml@[^m][^a]?[^i]?[^n]?"
 
+      - name: Check that CODEOWNERS file is present
+        run: test -f .github/CODEOWNERS
 ...
