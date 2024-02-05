@@ -159,8 +159,6 @@ jobs:
           ansible-galaxy collection list
 
       - name: Download the collection artifact
-        needs:
-          - prepare
         uses: actions/download-artifact@v4
         with:
           name: ansible-collections-${{ needs.prepare.outputs.ref }}
