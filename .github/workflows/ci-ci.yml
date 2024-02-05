@@ -58,7 +58,7 @@ jobs:
           overwrite: true
 
   ansiblecollection:
-    needs: createansibleartifact
+    needs: createansiblecollection
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       filename: local-ci-0.1.0.tar.gz
