@@ -17,20 +17,25 @@ on:  # yamllint disable-line rule:truthy
         type: string
         required: true
     outputs:
-      filename: ${{ steps.filename.outputs.filename }}
-      
+      filename:
+        description: The filename of the collection tarball
+        value: ${{ jobs.upload_artifact.outputs.filename }}
+
 jobs:
 
   upload_artifact:
     runs-on: ubuntu-22.04
+    outputs:
+      filename: ${{ steps.filename.outputs.filename }}
+
     steps:
 
       - name: Checkout ourself
         uses: actions/checkout@v4
-    
+
       - name: Build the ansible collection
         run: ansible-galaxy collection build
-    
+
       - name: Construct the filename from galaxy.yml
         id: filename
         run: |
@@ -44,14 +49,14 @@ jobs:
           collection_name=$(echo $json|jq .name)
           version=$(echo $json|jq .name)
           echo "filename=$NAMESPACE-$COLLECTION_NAME-$VERSION.tar.gz\n" >> $GITHUB_OUTPUT
-    
+
       - name: Assertions
         env:
           FILENAME: ${{ steps.filename.outputs.filename }}
         run: |
           test -n "$FILENAME"
           test -f "$FILENAME"
-    
+
       - name: Upload the Artifact
         uses: actions/upload-artifact@v4
         with:
