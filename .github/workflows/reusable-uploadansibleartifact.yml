@@ -22,7 +22,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   upload_artifact:
-
+    runs-on: ubuntu-22.04
     steps:
 
       - name: Checkout ourself
