@@ -16,6 +16,9 @@ on:  # yamllint disable-line rule:truthy
       targeted_branch:
         type: string
         required: true
+      repository:
+        type: string
+        default: ${{ github.repository }}
     outputs:
       filename:
         description: The filename of the collection tarball
@@ -30,8 +33,11 @@ jobs:
 
     steps:
 
-      - name: Checkout ourself
+      - name: Checkout
+        if: inputs.repository
         uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
 
       - name: Build the ansible collection
         run: ansible-galaxy collection build
