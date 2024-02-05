@@ -14,7 +14,7 @@ on:  # yamllint disable-line rule:truthy
     inputs:
       ref:
         type: string
-        default: ${{ github.sha }}
+        default: dev
       filename:
         type: string
         required: true
