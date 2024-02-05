@@ -68,10 +68,13 @@ jobs:
           overwrite: true
 
   ansiblecollection:
-    needs: createansiblecollection
+    needs:
+      - selectbranch
+      - createansiblecollection
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       filename: local-ci-0.1.0.tar.gz
+      ref: ${{ needs.selectbranch.outputs.ref }}
 
   allsuccess:
     if: success() || failure()
