@@ -15,6 +15,9 @@ on:  # yamllint disable-line rule:truthy
       ref:
         type: string
         default: ${{ github.sha }}
+      filename:
+        type: string
+        required: true
       mock:
         type: boolean
         default: false
@@ -155,6 +158,11 @@ jobs:
           rm -fr collections/ansible_collections/mafalb/ansible
           ansible-galaxy collection list
 
+      - name: Download the collection artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-collections-${{ outputs.prepare.outputs.ref }}
+
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
       #
@@ -163,7 +171,7 @@ jobs:
         run: |
 
           # install the collection we want to test
-          ansible-galaxy collection install git+"${{ github.server_url }}"/"$CI_REPO".git,"$CI_REF" -p collections
+          ansible-galaxy collection install ${{ inputs.filename }} -p collections
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
