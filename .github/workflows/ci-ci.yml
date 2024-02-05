@@ -62,7 +62,7 @@ jobs:
       - name: Collection | Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ansible-collections-${{ inputs.targeted_branch }}
+          name: ansible-collections-${{ needs.selectbranch.outputs.ref }}
           path: local-ci-0.1.0.tar.gz
           if-no-files-found: error
           overwrite: true
