@@ -29,6 +29,15 @@ jobs:
 
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: mafalb/skeletons
+          path: skeletons
+
+      - name: Create directory for collections
+        run: mkdir ansible_collections
+
       - name: Collection | create a new collection with our skeleton
         working-directory: ansible_collections
         run: |
