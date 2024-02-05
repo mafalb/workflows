@@ -14,7 +14,6 @@ on:  # yamllint disable-line rule:truthy
     inputs:
       ref:
         type: string
-        default: dev
       filename:
         type: string
       mock:
@@ -121,7 +120,7 @@ jobs:
         if: inputs.filename
         uses: actions/download-artifact@v4
         with:
-          name: ansible-collections-${{ needs.prepare.outputs.ref }}
+          name: ansible-collections-${{ inputs.ref }}
 
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
