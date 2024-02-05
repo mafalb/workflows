@@ -25,7 +25,6 @@ jobs:
 
   ansible-test:
     runs-on: ubuntu-22.04
-    needs: prepare
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
