@@ -23,9 +23,18 @@ jobs:
       targeted_branch: ${{ inputs.targeted_branch }}
     needs: lint
 
+  uploadansibleartifact:
+    uses: ./.github/workflows/reusable-uploadansibleartifact.yml
+    with:
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+
   ansiblecollection:
+    needs: uploadansibleartifact
     uses: ./.github/workflows/reusable-ansiblecollection.yml
-    needs: lint
+    with:
+      filename: ${{ needs.uploadansibleartifact.outputs.filename }}
+    needs:
+      - selectbranch
 
   allsuccess:
     if: success() || failure()

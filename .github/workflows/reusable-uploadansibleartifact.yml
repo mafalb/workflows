@@ -1,0 +1,58 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+# call it with
+# if: always()
+#
+name: UploadAnsibleArtifact
+on:  # yamllint disable-line rule:truthy
+  # make it reusable
+  workflow_call:
+    inputs:
+      targeted_branch:
+        type: string
+        required: true
+    outputs:
+      filename: ${{ steps.filename.outputs.filename }}
+      
+jobs:
+
+  - name: Checkout ourself
+    uses: actions/checkout@v4
+
+  - name: Build the ansible collection
+    run: ansible-galaxy collection build
+
+  - name: Construct the filename from galaxy.yml
+    id: filename
+    run: |
+      json=$(cat galaxy.yml | python3 <(cat << EOF
+        import sys, yaml, json
+        y=yaml.safe_load(sys.stdin.read())
+        print(json.dumps(y))
+      EOF
+      ))
+      namespace=$(echo $json|jq .namespace)
+      collection_name=$(echo $json|jq .name)
+      version=$(echo $json|jq .name)
+      echo "filename=$NAMESPACE-$COLLECTION_NAME-$VERSION.tar.gz\n" >> $GITHUB_OUTPUT
+
+  - name: Assertions
+    env:
+      FILENAME: ${{ steps.filename.outputs.filename }}
+    run: |
+      test -n "$FILENAME"
+      test -f "$FILENAME"
+
+  - name: Upload the Artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: ansible-collections-${{ inputs.targeted_branch }}
+      path: ${{ steps.filename.outputs.filename }}
+      if-no-files-found: error
+      overwrite: true
+...
