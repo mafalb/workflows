@@ -14,54 +14,21 @@ on:  # yamllint disable-line rule:truthy
     inputs:
       ref:
         type: string
-        default: ${{ github.sha }}
+        required: true
+      filename:
+        type: string
       mock:
         type: boolean
         default: false
 
 jobs:
 
-  prepare:
-    runs-on: ubuntu-22.04
-    outputs:
-      repo: ${{ steps.mangle.outputs.repo }}
-      ref: ${{ steps.mangle.outputs.ref }}
-
-    steps:
-
-      - name: Set repo and ref if running on mafalb/workflows
-        id: mangle
-        run: |
-          default_branch="$(GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }} --jq '.default_branch')"
-          echo "$default_branch"
-
-          if test "${{ github.repository }}" = "mafalb/workflows"; then
-              # CI run on mafalb/workflows
-              # mangle repo and ref
-              repo="mafalb/ansible-test-collections"
-              if  "${{ github.ref_name }}" = "main"; then
-                  ref="main"  # we know that main is the master branch of mafalb/ansible-test-collections
-              else
-                  ref="dev"
-              fi
-          else
-              # normal CI run on another repository
-              # pass through
-              repo="${{ github.repository }}"
-              ref="${{ inputs.ref }}"
-          fi
-          echo "repo=$repo" >> "$GITHUB_OUTPUT"
-          echo "ref=$ref" >> "$GITHUB_OUTPUT"
-
   ansible-test:
     runs-on: ubuntu-22.04
-    needs: prepare
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
       ANSIBLE_COLLECTIONS_PATH: "$HOME/.ansible/collections"
-      CI_REPO: ${{ needs.prepare.outputs.repo }}
-      CI_REF: ${{ needs.prepare.outputs.ref }}
 
     strategy:
       fail-fast: false
@@ -109,11 +76,6 @@ jobs:
 
     steps:
 
-      - name: Assertions
-        run: |
-          test -n "$CI_REPO"
-          test -n "$CI_REF"
-
       - name: setup python
         uses: actions/setup-python@v5
         with:
@@ -155,15 +117,34 @@ jobs:
           rm -fr collections/ansible_collections/mafalb/ansible
           ansible-galaxy collection list
 
+      - name: Download the collection artifact
+        if: inputs.filename
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-collections-${{ inputs.ref }}
+
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
       #
-      - name: Checkout the collection we want to test
+      - name: Install the collection we want to test
         working-directory: ${{ github.workspace }}
+        env:
+          FILENAME: ${{ inputs.filename }}
+          SERVER_URL: ${{ github.server_url }}
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.ref }}
         run: |
 
           # install the collection we want to test
-          ansible-galaxy collection install git+"${{ github.server_url }}"/"$CI_REPO".git,"$CI_REF" -p collections
+          if test -n "$FILENAME"; then
+              ansible-galaxy collection install "$FILENAME" -p collections
+          else
+              ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
+          fi
+
+      - name: Get Info about installed collection
+        working-directory: ${{ github.workspace }}
+        run: |
 
           # note that namespace and collection_name are not necessarily the same
           # as github.repository_owner and similar variables.
