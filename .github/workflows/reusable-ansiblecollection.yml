@@ -66,13 +66,19 @@ jobs:
 
     steps:
 
+      - name: Checkout workflows
+        uses: actions/checkout@v2
+        with:
+          repository: mafalb/workflows
+          path: workflows
+
       - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
 
       - name: Install Ansible
-        uses: ./.github/actions/installansible
+        uses: ./workflows/.github/actions/installansible
         with:
           ansible_version: ${{ matrix.ansible_version }}
           python_version: ${{ matrix.python_version }}
