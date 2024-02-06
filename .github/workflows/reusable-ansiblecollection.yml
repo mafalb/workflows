@@ -194,6 +194,9 @@ jobs:
               fi
           elif test "${ANSIBLE_LINT_VERSION}" == "6.8.6" -a -f .ansible-lint-6.8.6; then
               echo "ansible-lint $ANSIBLE_LINT_VERSION..."
+              # old ansible lint uses another environment variable
+              ANSIBLE_COLLECTIONS_PATHS="$ANSIBLE_COLLECTIONS_PATH"
+              unset ANSIBLE_COLLECTIONS_PATH
               ansible-lint -v --offline -c .ansible-lint-6.8.6
           elif test -f .ansible-lint-"$ANSIBLE_LINT_VERSION"; then
               echo "ansible-lint -c .ansible-lint-$ANSIBLE_LINT_VERSION..."
