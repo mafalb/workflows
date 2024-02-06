@@ -380,12 +380,19 @@ jobs:
 
     steps:
 
+      - name: Checkout workflows
+        uses: actions/checkout@v2
+        with:
+          repository: mafalb/workflows
+          path: workflows
+
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:
           ansible_version: ${{ matrix.ansible_version }}
           python_version: ${{ matrix.python_version }}
           extra_packages: '["molecule_podman", "molecule_docker", "molecule"]'
+
       - name: molecule scenario virtualenv
         working-directory: collections/ansible_collections/mafalb/
         run: |
