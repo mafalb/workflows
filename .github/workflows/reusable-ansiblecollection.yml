@@ -246,7 +246,7 @@ jobs:
       matrix:
 
         os:
-          #- arch
+          # - arch
           - debian12
           - ubuntu22
           - ubuntu24
@@ -338,15 +338,15 @@ jobs:
             ansible_version: '2.16'
 
           # arch has 2.7 and 3.9
-          #- os: arch
+          # - os: arch
           #  python_version: '3.5'
-          #- os: arch
+          # - os: arch
           #  python_version: '3.6'
-          #- os: arch
+          # - os: arch
           #  python_version: '3.7'
-          #- os: arch
+          # - os: arch
           #  python_version: '3.8'
-          #- os: arch
+          # - os: arch
           #  python_version: '3.10'
 
           # debian12 has only 3.11
