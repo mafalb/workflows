@@ -72,7 +72,7 @@ jobs:
           python-version: ${{ matrix.python_version }}
 
       - name: Install Ansible
-        uses: mafalb/workflows/.github/actions/installansible@dev
+        uses: ./.github/actions/installansible
         with:
           ansible_version: ${{ matrix.ansible_version }}
           python_version: ${{ matrix.python_version }}
