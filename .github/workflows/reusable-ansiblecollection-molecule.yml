@@ -71,11 +71,41 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Install Ansible
-        uses: mafalb/workflows/.github/actions/installansible@dev
-        with:
-          ansible_version: ${{ matrix.ansible_version }}
-          python_version: ${{ matrix.python_version }}
+      # We use the stable branch
+      - name: Checkout mafalb.ansible - we need it for tests
+        working-directory: ${{ github.workspace }}
+        run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
+
+      - name: Install ansible
+        working-directory: collections/ansible_collections/mafalb/ansible
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+        run: |
+          ansible-playbook -D playbooks/install-ansible.yml \
+            -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
+                                        "ansible-lint",
+                                        "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
+            -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
+
+      - name: check ansible version
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          ansible --version
+          ansible --version | grep "^ansible.* ${{ matrix.ansible_version }}"
+
+      - name: check python version
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          ansible --version | grep "^\s*python.* ${{ matrix.python_version }}"
+
+      # Move it out of the way, it could be that we want to test an unstable version of it
+      - name: Remove the downloaded collection again
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          rm -fr collections/ansible_collections/mafalb/ansible
+          ansible-galaxy collection list
 
       - name: Download the collection artifact
         if: inputs.filename
@@ -147,10 +177,16 @@ jobs:
           if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
               if test -f .ansible-lint-4; then
                   echo "ansible-lint -c .ansible-lint-4 $ANSIBLE_LINT_VERSION..."
+                  # old ansible lint uses another environment variable
+                  ANSIBLE_COLLECTIONS_PATHS="$ANSIBLE_COLLECTIONS_PATH"
+                  unset ANSIBLE_COLLECTIONS_PATH
                   ansible-lint -v -c .ansible-lint-4
               fi
           elif test "${ANSIBLE_LINT_VERSION}" == "6.8.6" -a -f .ansible-lint-6.8.6; then
               echo "ansible-lint $ANSIBLE_LINT_VERSION..."
+              # old ansible lint uses another environment variable
+              ANSIBLE_COLLECTIONS_PATHS="$ANSIBLE_COLLECTIONS_PATH"
+              unset ANSIBLE_COLLECTIONS_PATH
               ansible-lint -v --offline -c .ansible-lint-6.8.6
           elif test -f .ansible-lint-"$ANSIBLE_LINT_VERSION"; then
               echo "ansible-lint -c .ansible-lint-$ANSIBLE_LINT_VERSION..."
