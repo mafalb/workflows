@@ -13,50 +13,53 @@ inputs:
     description: 'The version of python'
 
 runs:
+  using: "composite"
 
-  - name: Assertions
-    run: |
-      test -n ${{ github.workspace }}
-      test -n ${{ github.server_url }}
+  steps:
 
-  - name: setup python
-    uses: actions/setup-python@v5
-    with:
-      python-version: ${{ inputs.python_version }}
+    - name: Assertions
+      run: |
+        test -n ${{ github.workspace }}
+        test -n ${{ github.server_url }}
 
-  # We use the stable branch
-  - name: Checkout mafalb.ansible - we need it for tests
-    working-directory: ${{ github.workspace }}
-    run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
+    - name: setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
 
-  - name: Install ansible
-    working-directory: collections/ansible_collections/mafalb/ansible
-    env:
-      ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
-    run: |
-      ansible-playbook -D playbooks/install-ansible.yml \
-        -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
-                                    "ansible-lint",
-                                    "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
-        -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
+    # We use the stable branch
+    - name: Checkout mafalb.ansible - we need it for tests
+      working-directory: ${{ github.workspace }}
+      run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
 
-  - name: check ansible version
-    run: |
-      source ~/.virtualenvs/ansible/bin/activate
-      ansible --version
-      ansible --version | grep "^ansible.* ${{ inputs.ansible_version }}"
+    - name: Install ansible
+      working-directory: collections/ansible_collections/mafalb/ansible
+      env:
+        ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+      run: |
+        ansible-playbook -D playbooks/install-ansible.yml \
+          -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
+                                      "ansible-lint",
+                                      "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
+          -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
 
-  - name: check python version
-    run: |
-      source ~/.virtualenvs/ansible/bin/activate
-      ansible --version | grep "^\s*python.* ${{ inputs.python_version }}"
+    - name: check ansible version
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        ansible --version
+        ansible --version | grep "^ansible.* ${{ inputs.ansible_version }}"
 
-  # Move it out of the way, it could be that we want to test an unstable version of it
-  - name: Remove the downloaded collection again
-    env:
-      ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
-    run: |
-      source ~/.virtualenvs/ansible/bin/activate
-      rm -fr collections/ansible_collections/mafalb/ansible
-      ansible-galaxy collection list
+    - name: check python version
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        ansible --version | grep "^\s*python.* ${{ inputs.python_version }}"
+
+    # Move it out of the way, it could be that we want to test an unstable version of it
+    - name: Remove the downloaded collection again
+      env:
+        ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        rm -fr collections/ansible_collections/mafalb/ansible
+        ansible-galaxy collection list
 ...
