@@ -67,7 +67,7 @@ jobs:
     steps:
 
       - name: Checkout workflows
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: mafalb/workflows
           path: workflows
@@ -381,7 +381,7 @@ jobs:
     steps:
 
       - name: Checkout workflows
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: mafalb/workflows
           path: workflows
