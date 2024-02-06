@@ -132,7 +132,7 @@ jobs:
           FILENAME: ${{ inputs.filename }}
           SERVER_URL: ${{ github.server_url }}
           CI_REPO: ${{ github.repository }}
-          CI_REF: ${{ github.ref }}
+          CI_REF: ${{ github.sha }}
         run: |
 
           # install the collection we want to test
