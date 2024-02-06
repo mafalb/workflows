@@ -18,6 +18,7 @@ runs:
   steps:
 
     - name: Assertions
+      shell: bash
       run: |
         test -n ${{ github.workspace }}
         test -n ${{ github.server_url }}
@@ -29,10 +30,12 @@ runs:
 
     # We use the stable branch
     - name: Checkout mafalb.ansible - we need it for tests
+      shell: bash
       working-directory: ${{ github.workspace }}
       run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
 
     - name: Install ansible
+      shell: bash
       working-directory: collections/ansible_collections/mafalb/ansible
       env:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
@@ -44,18 +47,21 @@ runs:
           -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
 
     - name: check ansible version
+      shell: bash
       run: |
         source ~/.virtualenvs/ansible/bin/activate
         ansible --version
         ansible --version | grep "^ansible.* ${{ inputs.ansible_version }}"
 
     - name: check python version
+      shell: bash
       run: |
         source ~/.virtualenvs/ansible/bin/activate
         ansible --version | grep "^\s*python.* ${{ inputs.python_version }}"
 
     # Move it out of the way, it could be that we want to test an unstable version of it
     - name: Remove the downloaded collection again
+      shell: bash
       env:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
       run: |
