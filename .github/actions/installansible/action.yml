@@ -8,12 +8,18 @@ name: 'Install Ansible'
 description: 'Install ansible into a virtualenv'
 inputs:
   ref:
+    description: 'The version of the collection to use'
+    type: string
+    required: true
   ansible_version:
     description: 'The version of ansible'
+    type: string
   python_version:
     description: 'The version of python'
+    type: string
   extra_packages:
     description: 'The pip packages we want to install'
+    type: string
     default: "[]"
 
 runs:
