@@ -12,6 +12,9 @@ inputs:
     required: true
   filename:
     description: 'The filename of  a tar.gz if the collection is not remote'
+  repository:
+    description: 'Optional repo namespace/name'
+    default: ${{ github.repository }}
 
 runs:
   using: "composite"
@@ -19,7 +22,7 @@ runs:
     - name: Get Info about installed collection
       shell: bash
       env:
-        CI_REPO: ${{ github.repository }}
+        CI_REPO: ${{ inputs.repository }}
         CI_REF: ${{ inputs.targeted_branch }}
         SERVER: raw.githubusercontent.com
         FILENAME: ${{ inputs.filename }}

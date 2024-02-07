@@ -33,6 +33,7 @@ jobs:
         uses: ./.github/actions/ansiblecollectioninfo
         with:
           targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+          repository: mafalb/ansible-collection-ansible
       - name: Assertions
         run: |
           test "$collection_name" = "ansible"
