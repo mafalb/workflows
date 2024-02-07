@@ -43,9 +43,9 @@ runs:
         test -n "$namespace"
         test -n "$name"
 
-        echo "namespace=$namespace\n" >>$GITHUB_ENV
-        echo "collection_name=$name\n" >>$GITHUB_ENV
-        echo "namespace=$namespace\n" >>$GITHUB_OUTPUT
-        echo "collection_name=$name\n" >>$GITHUB_OUTPUT
+        echo "namespace=$namespace" >>$GITHUB_ENV
+        echo "collection_name=$name" >>$GITHUB_ENV
+        echo "namespace=$namespace" >>$GITHUB_OUTPUT
+        echo "collection_name=$name" >>$GITHUB_OUTPUT
 
 ...

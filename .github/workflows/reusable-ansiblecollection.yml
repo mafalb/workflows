@@ -141,7 +141,7 @@ jobs:
           # be paranoid
           cd collections/ansible_collections/$namespace/$collection_name
           grep ^galaxy.yml .github/CODEOWNERS
-          echo "working-directory=collections/ansible_collections/$namespace/$collection_name\n" >>GITHUB_ENV
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>GITHUB_ENV
 
       - name: yamllint
         working-directory: ${{ env.working-directory }}
