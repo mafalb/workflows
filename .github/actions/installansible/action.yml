@@ -53,6 +53,7 @@ runs:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
       run: |
+        set -x
         # assert json list
         packages=$(echo '[]' | jq -c ". += $ANSIBLE_EXTRA_PACKAGES")
         packages=$(echo "$packages"| jq -c '. += ["_ansible==${{ matrix.ansible_version }}",
