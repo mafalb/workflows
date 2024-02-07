@@ -51,7 +51,7 @@ runs:
                                                "_ansible_test",
                                                "flake8",
                                                "antsibull-docs",
-                                               "rstcheck-core"]'
+                                               "rstcheck-core"]')
 
         ansible-playbook -D playbooks/install-ansible.yml \
           -e virtualenv_packages=$packages \
