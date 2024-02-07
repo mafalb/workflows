@@ -23,19 +23,6 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
-  info:
-    runs-on: ubuntu-22.04
-    env:
-      CI_REPO: ${{ github.repository }}
-      CI_REF: ${{ inputs.ref }}
-      SERVER: raw.githubusercontent.com
-    steps:
-      - name: Get Info
-        uses: ./.github/workflows/reusable-molecule.yml
-        with:
-          ref: ${{ inputs.ref }}
-          filename: ${{ inputs.filename }}
-
   ansible-test:
     runs-on: ubuntu-22.04
     needs: info
