@@ -46,12 +46,12 @@ runs:
       run: |
         # assert json list
         packages=$(echo '[]' | jq ". += $ANSIBLE_EXTRA_PACKAGES")
-        packages=$(echo "$packages"| jq ". += ["_ansible==${{ matrix.ansible_version }}",
+        packages=$(echo "$packages"| jq '. += ["_ansible==${{ matrix.ansible_version }}",
                                                "ansible-lint",
                                                "_ansible_test",
                                                "flake8",
                                                "antsibull-docs",
-                                               "rstcheck-core"]
+                                               "rstcheck-core"]'
 
         ansible-playbook -D playbooks/install-ansible.yml \
           -e virtualenv_packages=$packages \
