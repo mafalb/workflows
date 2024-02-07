@@ -90,7 +90,7 @@ jobs:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       filename: local-ci-0.1.0.tar.gz
-      ref: ${{ needs.selectbranch.outputs.ref }}
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
 
   molecule:
     needs:
