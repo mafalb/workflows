@@ -11,6 +11,9 @@ inputs:
     description: 'The version of ansible'
   python_version:
     description: 'The version of python'
+  extra_packages:
+    description: 'The pip packages we want to install'
+    default: "[]"
 
 runs:
   using: "composite"
@@ -39,11 +42,19 @@ runs:
       working-directory: collections/ansible_collections/mafalb/ansible
       env:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+        ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
       run: |
+        # assert json list
+        packages=$(echo '[]' | jq ". += $ANSIBLE_EXTRA_PACKAGES")
+        packages=$(echo "$packages"| jq ". += ["_ansible==${{ matrix.ansible_version }}",
+                                               "ansible-lint",
+                                               "_ansible_test",
+                                               "flake8",
+                                               "antsibull-docs",
+                                               "rstcheck-core"]
+
         ansible-playbook -D playbooks/install-ansible.yml \
-          -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
-                                      "ansible-lint",
-                                      "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
+          -e virtualenv_packages=$packages \
           -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
 
     - name: check ansible version

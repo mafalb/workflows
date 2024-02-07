@@ -20,11 +20,27 @@ on:  # yamllint disable-line rule:truthy
       mock:
         type: boolean
         default: false
+    outputs:
+      namespace: ${{ steps.info.outputs.namespace }}
+      collection_name: ${{ steps.info.outputs.collection_name }}
 
 jobs:
 
+  info:
+    runs-on: ubuntu-22.04
+    env:
+      CI_REPO: ${{ github.repository }}
+      CI_REF: ${{ inputs.ref }}
+      SERVER: raw.githubusercontent.com
+    steps:
+      - name: Get Info
+        uses: ./.github/workflows/reusable-molecule.yml
+        with:
+          ref: ${{ inputs.ref }}
+
   ansible-test:
     runs-on: ubuntu-22.04
+    needs: info
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
@@ -100,35 +116,12 @@ jobs:
           CI_REPO: ${{ github.repository }}
           CI_REF: ${{ github.sha }}
         run: |
-
           # install the collection we want to test
           if test -n "$FILENAME"; then
               ansible-galaxy collection install "$FILENAME" -p collections
           else
               ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
           fi
-
-      - name: Get Info about installed collection
-        working-directory: ${{ github.workspace }}
-        run: |
-
-          # note that namespace and collection_name are not necessarily the same
-          # as github.repository_owner and similar variables.
-          # the naming of the repository and collection_name can be disconnected
-          #
-          # we determine namespace and collection_name
-          # this works because we know that we installed just one collection
-          #
-          namespace=$(basename $(ls -d collections/ansible_collections/*/))
-          collection_name=$(basename $(ls -d collections/ansible_collections/*/*/))
-
-          echo collection $namespace/$collection_name
-          tree collections
-
-          # save the directory of our collection for future use
-          echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
-          echo "collection_name=$collection_name" >>$GITHUB_ENV
-          echo "namespace=$namespace" >>$GITHUB_ENV
 
       - name: yamllint
         working-directory: ${{ env.working-directory }}
@@ -234,169 +227,5 @@ jobs:
           echo ogo
           ./build.sh
           echo bla
-
-  virtualenv:
-
-    runs-on: ubuntu-22.04
-    needs: ansible-test
-
-    strategy:
-      fail-fast: false
-
-      matrix:
-
-        os:
-          # - arch
-          - debian12
-          - ubuntu22
-          - ubuntu24
-          - fedora38
-          - fedora39
-          - fedora40
-          - c9s
-          - rocky9
-          - alma9
-
-        ansible_version:
-          - '2.12'
-          - '2.14'
-          - '2.15'
-          - '2.16'
-
-        python_version:
-          - '3.9'
-          - '3.10'
-          - '3.11'
-          - '3.12'
-
-        exclude:
-
-          # impossible ansible - python combinations
-          - ansible_version: '2.12'
-            python_version: '3.11'
-
-          - ansible_version: '2.12'
-            python_version: '3.12'
-
-          - ansible_version: '2.14'
-            python_version: '3.12'
-
-          - ansible_version: '2.15'
-            python_version: '3.12'
-
-          - ansible_version: '2.16'
-            python_version: '3.9'
-
-          # no python3.x-setuptool package
-          # therefore only ansible that support 3.11 are possible
-          #
-          - os: fedora38
-            ansible_version: '2.12'
-          - os: fedora38
-            python_version: '3.12'
-
-
-          # no python3.x-setuptool package
-          # therefore only ansible that support 3.12 are possible
-          #
-          - os: fedora39
-            ansible_version: '2.12'
-          - os: fedora39
-            ansible_version: '2.14'
-          - os: fedora39
-            ansible_version: '2.15'
-
-          - os: fedora40
-            ansible_version: '2.12'
-          - os: fedora40
-            ansible_version: '2.14'
-          - os: fedora40
-            ansible_version: '2.15'
-
-          # c9s has 3.9, 3.11
-          - os: c9s
-            python_version: '3.10'
-          - os: c9s
-            python_version: '3.12'
-          - os: c9s
-            ansible_version: '2.16'
-
-          # alma9 has 3.9, 3.11
-          - os: alma9
-            python_version: '3.10'
-          - os: alma9
-            python_version: '3.12'
-          - os: alma9
-            ansible_version: '2.16'
-
-          # rocky9 has 3.9, 3.11
-          - os: rocky9
-            python_version: '3.10'
-          - os: rocky9
-            python_version: '3.12'
-          - os: rocky9
-            ansible_version: '2.16'
-
-          # arch has 2.7 and 3.9
-          # - os: arch
-          #  python_version: '3.5'
-          # - os: arch
-          #  python_version: '3.6'
-          # - os: arch
-          #  python_version: '3.7'
-          # - os: arch
-          #  python_version: '3.8'
-          # - os: arch
-          #  python_version: '3.10'
-
-          # debian12 has only 3.11
-          - os: debian12
-            python_version: '3.9'
-          - os: debian12
-            python_version: '3.10'
-          - os: debian12
-            python_version: '3.12'
-
-          # ubuntu22 has 3.10, 3.11
-          - os: ubuntu22
-            python_version: '3.9'
-          - os: ubuntu22
-            python_version: '3.12'
-
-          # ubuntu24 has 3.11, 3.12
-          - os: ubuntu24
-            python_version: '3.9'
-          - os: ubuntu24
-            python_version: '3.10'
-
-    env:
-      ANSIBLE_VERSION: ${{ matrix.ansible_version }}
-      PYTHON_VERSION: ${{ matrix.python_version }}
-      CI_IMAGE: ${{ matrix.image }}
-      CI_HOSTNAME: ci-${{ matrix.os }}
-      CI_DRIVER: podman
-      PY_COLORS: 1
-      ANSIBLE_FORCE_COLOR: 1
-
-    steps:
-
-      - name: Checkout workflows
-        uses: actions/checkout@v4
-        with:
-          repository: mafalb/workflows
-          path: workflows
-
-      - name: Install Ansible
-        uses: ./workflows/.github/actions/installansible
-        with:
-          ansible_version: ${{ matrix.ansible_version }}
-          python_version: ${{ matrix.python_version }}
-          extra_packages: '["molecule_podman", "molecule_docker", "molecule"]'
-
-      - name: molecule scenario virtualenv
-        working-directory: collections/ansible_collections/mafalb/
-        run: |
-          source ~/.virtualenvs/molecule/bin/activate
-          molecule -e .env-${{ matrix.os }}.yml test -s virtualenv -- -e ansible_python_interpreter=/usr/bin/python3
 
 ...

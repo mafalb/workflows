@@ -1,0 +1,63 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: Molecule
+
+on:  # yamllint disable-line rule:truthy
+
+  # make it reusable
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      scenario:
+        type: string
+        default: default
+      target:
+        type: string
+
+jobs:
+
+  molecule:
+
+    runs-on: ubuntu-22.04
+
+    env:
+      ANSIBLE_VERSION: ${{ matrix.ansible_version }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
+      CI_IMAGE: ${{ matrix.image }}
+      CI_HOSTNAME: ci-${{ matrix.os }}
+      CI_DRIVER: podman
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+
+    steps:
+
+      - name: Checkout workflows
+        uses: actions/checkout@v4
+        with:
+          repository: mafalb/workflows
+          path: workflows
+
+      - name: Install Ansible
+        uses: ./workflows/.github/actions/installansible
+        with:
+          ansible_version: ${{ matrix.ansible_version }}
+          python_version: ${{ matrix.python_version }}
+          extra_packages: '["molecule_podman", "molecule"]'
+
+      - name: run molecule tests
+        working-directory: collections/ansible_collections/mafalb/
+        env:
+          ENV_FILE: .env-${{ inputs.target }}.yml
+          SCENARIO: ${{ inputs.scenario }}
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          molecule -e "$ENV_FILE" -c molecule/resources/molecule.yml test -s "$SCENARIO"
+
+...
