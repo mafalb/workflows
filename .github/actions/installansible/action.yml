@@ -52,7 +52,7 @@ runs:
                                                "flake8",
                                                "antsibull-docs",
                                                "rstcheck-core"]')
-
+        echo Installing packages: "$packages"
         ansible-playbook -D playbooks/install-ansible.yml \
           -e virtualenv_packages=$packages \
           -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
