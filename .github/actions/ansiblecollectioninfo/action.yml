@@ -14,6 +14,7 @@ runs:
   using: "composite"
   steps:
     - name: Get Info about installed collection
+      shell: bash
       env:
         CI_REPO: ${{ github.repository }}
         CI_REF: ${{ inputs.targeted_branch }}
