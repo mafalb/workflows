@@ -61,11 +61,11 @@ runs:
                                                "_ansible_test",
                                                "flake8",
                                                "antsibull-docs",
-                                               "rstcheck-core"]')
+                                               "rstcheck-core"]|tojson')
         echo Installing packages: "$packages"
         ansible-playbook -D playbooks/install-ansible.yml \
-          -e virtualenv_packages=$packages \
-          -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
+          -e "virtualenv_packages=$packages" \
+          -e "virtualenv_python=python${{ matrix.python_version }}" -t all,debug
 
     - name: check ansible version
       shell: bash
