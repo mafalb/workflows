@@ -20,9 +20,6 @@ on:  # yamllint disable-line rule:truthy
       mock:
         type: boolean
         default: false
-    outputs:
-      namespace: ${{ steps.info.outputs.namespace }}
-      collection_name: ${{ steps.info.outputs.collection_name }}
 
 jobs:
 
