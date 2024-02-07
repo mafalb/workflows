@@ -10,6 +10,9 @@ inputs:
   targeted_branch:
     description: 'The targeted branch for remote requests'
     required: true
+  filename:
+    description: 'The filename of  a tar.gz if the collection is not remote'
+
 runs:
   using: "composite"
   steps:
@@ -19,14 +22,19 @@ runs:
         CI_REPO: ${{ github.repository }}
         CI_REF: ${{ inputs.targeted_branch }}
         SERVER: raw.githubusercontent.com
+        FILENAME: ${{ inputs.filename }}
       run: |
 
-        read namespace name < <(curl -s https://"$SERVER"/"$CI_REPO"/"$CI_REF"/galaxy.yml | python3 <(cat << EOF
-        import sys, yaml, json
-        y=yaml.safe_load(sys.stdin.read())
-        print(json.dumps(y))
-        EOF
-        ) | jq -r '.namespace + " " + .name')
+        if test -n "$FILENAME"; then
+            # local mode
+            read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
+        else
+            read namespace name < <(curl -s https://"$SERVER"/"$CI_REPO"/"$CI_REF"/galaxy.yml | python3 <(cat << EOF
+            import sys, yaml, json
+            y=yaml.safe_load(sys.stdin.read())
+            print(json.dumps(y))
+            EOF
+            ) | jq -r '.namespace + " " + .name')
 
         test -n "$namespace"
         test -n "$name"

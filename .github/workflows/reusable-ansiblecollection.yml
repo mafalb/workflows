@@ -34,6 +34,7 @@ jobs:
         uses: ./.github/workflows/reusable-molecule.yml
         with:
           ref: ${{ inputs.ref }}
+          filename: ${{ inputs.filename }}
 
   ansible-test:
     runs-on: ubuntu-22.04
@@ -119,6 +120,28 @@ jobs:
           else
               ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
           fi
+
+      - name: Get Info
+        id: info
+        env:
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+          SERVER: raw.githubusercontent.com
+        uses: ./.github/actions/ansiblecollectioninfo
+        with:
+          ref: ${{ inputs.ref }}
+          filename: ${{ inputs.filename }}
+
+      - name: Set working directory
+        env:
+          namespace: ${{ steps.info.outputs.namespace }}
+          collection_name: ${{ steps.info.outputs.namespace }}
+        run: |
+          # we use info from galaxy.yml in above Get Info step
+          # be paranoid
+          cd collections/ansible_collections/$namespace/$collection_name
+          grep ^galaxy.yml .github/CODEOWNERS
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name\n" >>GITHUB_ENV
 
       - name: yamllint
         working-directory: ${{ env.working-directory }}
