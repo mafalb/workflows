@@ -30,11 +30,12 @@ runs:
             read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
         else
             read namespace name < <(curl -s https://"$SERVER"/"$CI_REPO"/"$CI_REF"/galaxy.yml | python3 <(cat << EOF
-            import sys, yaml, json
-            y=yaml.safe_load(sys.stdin.read())
-            print(json.dumps(y))
-            EOF
-            ) | jq -r '.namespace + " " + .name')
+        import sys, yaml, json
+        y=yaml.safe_load(sys.stdin.read())
+        print(json.dumps(y))
+        EOF
+        ) | jq -r '.namespace + " " + .name')
+        fi
 
         test -n "$namespace"
         test -n "$name"
