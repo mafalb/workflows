@@ -12,7 +12,7 @@ on:  # yamllint disable-line rule:truthy
   # make it reusable
   workflow_call:
     inputs:
-      ref:
+      targeted_branch:
         type: string
         required: true
       filename:
@@ -82,12 +82,13 @@ jobs:
         with:
           ansible_version: ${{ matrix.ansible_version }}
           python_version: ${{ matrix.python_version }}
+          ref: workflow
 
       - name: Download the collection artifact
         if: inputs.filename
         uses: actions/download-artifact@v4
         with:
-          name: ansible-collections-${{ inputs.ref }}
+          name: ansible-collections-${{ inputs.targeted_branch }}
 
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
@@ -115,7 +116,7 @@ jobs:
           SERVER: raw.githubusercontent.com
         uses: ./.github/actions/ansiblecollectioninfo
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.sha }}
           filename: ${{ inputs.filename }}
 
       - name: Set working directory

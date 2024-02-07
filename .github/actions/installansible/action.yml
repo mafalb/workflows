@@ -7,6 +7,7 @@
 name: 'Install Ansible'
 description: 'Install ansible into a virtualenv'
 inputs:
+  ref:
   ansible_version:
     description: 'The version of ansible'
   python_version:
@@ -33,9 +34,11 @@ runs:
 
     # We use the stable branch
     - name: Checkout mafalb.ansible - we need it for tests
+      env:
+        REF: ${{ inputs.ref }}
       shell: bash
       working-directory: ${{ github.workspace }}
-      run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
+      run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git,"$REF" -p collections
 
     - name: Install ansible
       shell: bash
