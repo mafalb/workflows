@@ -49,6 +49,7 @@ jobs:
         with:
           repository: mafalb/skeletons
           path: skeletons
+          ref: f-dev
 
       - name: Create directory for collections
         run: mkdir ansible_collections
