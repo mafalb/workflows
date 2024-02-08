@@ -50,7 +50,7 @@ jobs:
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:
-          extra_packages: '["molecule_podman", "molecule"]'
+          extra_packages: 'molecule_podman,molecule'
           ref: ${{ inputs.targeted_branch }}
 
       - name: Download the collection artifact
