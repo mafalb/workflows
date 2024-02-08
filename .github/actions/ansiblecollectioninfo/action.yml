@@ -15,12 +15,16 @@ inputs:
   repository:
     description: 'Optional repo namespace/name'
     default: ${{ github.repository }}
+outputs:
+  namespace: ${{ steps.info.outputs.namespace }}
+  collection_name: ${{ steps.info.outputs.collection_name }}
 
 runs:
   using: "composite"
   steps:
     - name: Get Info about installed collection
       shell: bash
+      id: info
       env:
         CI_REPO: ${{ inputs.repository }}
         CI_REF: ${{ inputs.targeted_branch }}
