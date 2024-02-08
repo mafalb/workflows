@@ -51,7 +51,7 @@ runs:
       working-directory: collections/ansible_collections/mafalb/ansible
       env:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
-        ANSIBLE_EXTRA_PACKAGES: ${{ toJSON(inputs.extra_packages) }}
+        ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
       run: |
         set -x
         packages=$(echo "$ANSIBLE_EXTRA_PACKAGES"| jq -c '. += ["_ansible==${{ matrix.ansible_version }}",
