@@ -53,7 +53,7 @@ runs:
         ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
       run: |
         set -x
-        virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|jq -cR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ matrix.ansible_version }}", "ansible-lint", "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]|tojson)
+        virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|jq -cR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ matrix.ansible_version }}", "ansible-lint", "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]|tojson')
         echo Installing packages: $packages
         ansible-playbook -D playbooks/install-ansible.yml \
           -e $virtualenv_packages \
