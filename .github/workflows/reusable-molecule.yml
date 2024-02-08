@@ -45,7 +45,7 @@ jobs:
         with:
           repository: mafalb/workflows
           path: workflows
-          ref: f-ansiblecollections
+          ref: f-ansiblecollection
 
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
