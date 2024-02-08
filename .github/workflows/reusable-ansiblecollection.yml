@@ -122,7 +122,7 @@ jobs:
       - name: Set working directory
         env:
           namespace: ${{ steps.info.outputs.namespace }}
-          collection_name: ${{ steps.info.outputs.namespace }}
+          collection_name: ${{ steps.info.outputs.collection_name }}
         run: |
           test -n "$namespace"
           test -n "$collection_name"
