@@ -12,7 +12,7 @@ on:  # yamllint disable-line rule:truthy
   # make it reusable
   workflow_call:
     inputs:
-      ref:
+      targeted_branch:
         type: string
         required: true
       scenario:
@@ -36,6 +36,7 @@ jobs:
       CI_DRIVER: podman
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
+      TARGETED_BRANCH: ${{ inputs.targeted_branch }}
 
     steps:
 
@@ -44,12 +45,13 @@ jobs:
         with:
           repository: mafalb/workflows
           path: workflows
+          ref: ${{ inputs.targeted_branch }}
 
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:
           extra_packages: '["molecule_podman", "molecule"]'
-          ref: workflow
+          ref: ${{ inputs.targeted_branch }}
 
       - name: Download the collection artifact
         if: inputs.filename
