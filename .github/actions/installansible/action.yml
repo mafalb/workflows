@@ -54,9 +54,6 @@ runs:
         ANSIBLE_EXTRA_PACKAGES: ${{ toJSON(inputs.extra_packages) }}
       run: |
         set -x
-        echo ${{ inputs.extra_packages }}
-        echo ${{ toJSON(inputs.extra_packages) }}
-        packages=$(echo '[]' | jq -c ". += $ANSIBLE_EXTRA_PACKAGES")
         packages=$(echo "$ANSIBLE_EXTRA_PACKAGES"| jq -c '. += ["_ansible==${{ matrix.ansible_version }}",
                           "ansible-lint", "_ansible_test", "flake8",
                           "antsibull-docs", "rstcheck-core"]|tojson')
