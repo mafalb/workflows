@@ -132,7 +132,7 @@ jobs:
           pwd
           tree
           grep ^galaxy.yml .github/CODEOWNERS
-          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>GITHUB_ENV
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
       - name: yamllint
         working-directory: ${{ env.working-directory }}
