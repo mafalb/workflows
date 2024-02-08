@@ -98,7 +98,7 @@ jobs:
       - createansiblecollection
     uses: ./.github/workflows/reusable-molecule.yml
     with:
-      ref: ${{ needs.selectbranch.outputs.ref }}
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
 
   allsuccess:
     if: success() || failure()
