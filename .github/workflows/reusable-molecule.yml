@@ -51,7 +51,7 @@ jobs:
         uses: ./workflows/.github/actions/installansible
         with:
           extra_packages: 'molecule_podman,molecule'
-          ref: ${{ inputs.targeted_branch }}
+          ref: dev
 
       - name: Download the collection artifact
         if: inputs.filename
