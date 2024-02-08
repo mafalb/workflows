@@ -20,6 +20,9 @@ on:  # yamllint disable-line rule:truthy
         default: default
       target:
         type: string
+      filename:
+        type: string
+
 
 jobs:
 
@@ -28,8 +31,6 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      ANSIBLE_VERSION: ${{ matrix.ansible_version }}
-      PYTHON_VERSION: ${{ matrix.python_version }}
       CI_IMAGE: ${{ matrix.image }}
       CI_HOSTNAME: ci-${{ matrix.os }}
       CI_DRIVER: podman
@@ -47,14 +48,63 @@ jobs:
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:
-          ansible_version: ${{ matrix.ansible_version }}
-          python_version: ${{ matrix.python_version }}
           extra_packages: '["molecule_podman", "molecule"]'
+          ref: workflow
+
+      - name: Download the collection artifact
+        if: inputs.filename
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-collections-${{ inputs.targeted_branch }}
+
+      # Download the needed collections
+      # We use ansible-galaxy, not actions/checkout
+      #
+      - name: Install the collection we want to test
+        working-directory: ${{ github.workspace }}
+        env:
+          FILENAME: ${{ inputs.filename }}
+          SERVER_URL: ${{ github.server_url }}
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+        run: |
+          # install the collection we want to test
+          if test -n "$FILENAME"; then
+              ansible-galaxy collection install "$FILENAME" -p collections
+          else
+              ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
+          fi
+
+      - name: Get Info
+        id: info
+        env:
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+          SERVER: raw.githubusercontent.com
+        uses: ./workflows/.github/actions/ansiblecollectioninfo
+        with:
+          ref: ${{ github.sha }}
+          filename: ${{ inputs.filename }}
+
+      - name: Set working directory
+        env:
+          namespace: ${{ steps.info.outputs.namespace }}
+          collection_name: ${{ steps.info.outputs.collection_name }}
+        run: |
+          test -n "$namespace"
+          test -n "$collection_name"
+          # we use info from galaxy.yml in above Get Info step
+          # be paranoid
+          cd collections/ansible_collections/$namespace/$collection_name
+          pwd
+          tree
+          grep ^galaxy.yml .github/CODEOWNERS
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>GITHUB_ENV
 
       - name: run molecule tests
-        working-directory: collections/ansible_collections/mafalb/
+        working-directory: ${{ env.working-directory }}
         env:
-          ENV_FILE: .env-${{ inputs.target }}.yml
+          ENV_FILE: $GITHUB_WORKBENCH/workflows/env/env-${{ inputs.target }}.yml
           SCENARIO: ${{ inputs.scenario }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate

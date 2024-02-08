@@ -17,6 +17,7 @@ inputs:
   python_version:
     description: 'The version of python'
     type: string
+    default: python3
   extra_packages:
     description: 'The pip packages we want to install'
     type: string
@@ -51,16 +52,24 @@ runs:
       env:
         ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
+        ANSIBLE_VERSION: ${{ inputs.ansible_version }}
       run: |
         set -x
-        virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|\
-            jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ matrix.ansible_version }}",
-                                                                                  "ansible-lint", "_ansible_test", "flake8",
-                                                                                  "antsibull-docs", "rstcheck-core"]')
+        if test -n "$ANSIBLE_VERSION"; then
+            virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|\
+                jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ inputs.ansible_version }}",
+                                                                                      "ansible-lint", "_ansible_test", "flake8",
+                                                                                      "antsibull-docs", "rstcheck-core"]')
+        else
+            virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|\
+                jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible",
+                                                                                      "ansible-lint", "_ansible_test", "flake8",
+                                                                                      "antsibull-docs", "rstcheck-core"]')
+        fi
         echo Installing packages: $virtualenv_packages
         ansible-playbook -D playbooks/install-ansible.yml \
           -e $virtualenv_packages \
-          -e "virtualenv_python=python${{ matrix.python_version }}" -t all,debug
+          -e "virtualenv_python=python${{ inputs.python_version }}" -t all,debug
 
     - name: check ansible version
       shell: bash
