@@ -20,7 +20,7 @@ inputs:
   extra_packages:
     description: 'The pip packages we want to install'
     type: string
-    default: toJSON('[]')
+    default: ${{ toJSON('[]') }}
 
 runs:
   using: "composite"
