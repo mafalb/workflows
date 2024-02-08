@@ -110,6 +110,7 @@ jobs:
           SCENARIO: ${{ inputs.scenario }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
+          tree -a
           molecule -e "$ENV_FILE" -c molecule/resources/molecule.yml test -s "$SCENARIO"
 
 ...
