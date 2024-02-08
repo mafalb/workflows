@@ -54,6 +54,8 @@ runs:
         ANSIBLE_EXTRA_PACKAGES: ${{ toJSON(inputs.extra_packages) }}
       run: |
         set -x
+        echo ${{ inputs.extra_packages }}
+        echo ${{ toJSON(inputs.extra_packages) }}
         # assert json list
         packages=$(echo '[]' | jq -c ". += $ANSIBLE_EXTRA_PACKAGES")
         packages=$(echo "$packages"| jq -c '. += ["_ansible==${{ matrix.ansible_version }}",
