@@ -114,7 +114,7 @@ jobs:
           CI_REPO: ${{ github.repository }}
           CI_REF: ${{ github.sha }}
           SERVER: raw.githubusercontent.com
-        uses: .workflows/.github/actions/ansiblecollectioninfo
+        uses: ./workflows/.github/actions/ansiblecollectioninfo
         with:
           ref: ${{ github.sha }}
           filename: ${{ inputs.filename }}
