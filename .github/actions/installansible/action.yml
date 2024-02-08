@@ -34,6 +34,7 @@ runs:
         test -n ${{ github.server_url }}
 
     - name: setup python
+      if: inputs.python_version != 'python3'
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python_version }}
