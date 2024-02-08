@@ -108,7 +108,7 @@ jobs:
     needs:
       - lint
       - selectbranch
-      - ansiblecollectioninfo
+      - ansiblecollection_info
       - createansiblecollection
       - ansiblecollection
       - molecule
