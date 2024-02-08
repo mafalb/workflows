@@ -106,7 +106,7 @@ jobs:
       - name: run molecule tests
         working-directory: ${{ env.working-directory }}
         env:
-          ENV_FILE: $GITHUB_WORKBENCH/workflows/env/${{ inputs.target }}.yml
+          ENV_FILE: $GITHUB_WORKSPACE/workflows/env/${{ inputs.target }}.yml
           SCENARIO: ${{ inputs.scenario }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
