@@ -1,3 +1,0 @@
-CI_IMAGE: registry.fedoraproject.org/fedora:39
-CI_HOSTNAME: ci-fedora39
-CI_DOCKERFILE: dnf.j2
