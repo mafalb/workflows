@@ -17,7 +17,7 @@ inputs:
   python_version:
     description: 'The version of python'
     type: string
-    default: python3
+    default: 3
   extra_packages:
     description: 'The pip packages we want to install'
     type: string
@@ -34,7 +34,7 @@ runs:
         test -n ${{ github.server_url }}
 
     - name: setup python
-      if: inputs.python_version != 'python3'
+      if: inputs.python_version != '3'
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python_version }}
