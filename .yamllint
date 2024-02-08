@@ -1,4 +1,6 @@
 ---
+ignore:
+ - .github/actions/installansible/action.yml
 extends: default
 rules:
   line-length:
