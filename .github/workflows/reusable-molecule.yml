@@ -101,7 +101,7 @@ jobs:
           pwd
           tree
           grep ^galaxy.yml .github/CODEOWNERS
-          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>GITHUB_ENV
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
       - name: run molecule tests
         working-directory: ${{ env.working-directory }}
