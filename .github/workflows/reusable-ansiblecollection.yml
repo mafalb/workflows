@@ -116,7 +116,7 @@ jobs:
           SERVER: raw.githubusercontent.com
         uses: ./workflows/.github/actions/ansiblecollectioninfo
         with:
-          ref: ${{ github.sha }}
+          targeted_action: ${{ github.sha }}
           filename: ${{ inputs.filename }}
 
       - name: Set working directory
