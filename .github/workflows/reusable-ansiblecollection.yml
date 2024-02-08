@@ -124,9 +124,13 @@ jobs:
           namespace: ${{ steps.info.outputs.namespace }}
           collection_name: ${{ steps.info.outputs.namespace }}
         run: |
+          test -n "$namespace"
+          test -n "$collection_name"
           # we use info from galaxy.yml in above Get Info step
           # be paranoid
           cd collections/ansible_collections/$namespace/$collection_name
+          pwd
+          tree
           grep ^galaxy.yml .github/CODEOWNERS
           echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>GITHUB_ENV
 
