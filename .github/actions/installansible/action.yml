@@ -56,7 +56,7 @@ runs:
         virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ matrix.ansible_version }}", "ansible-lint", "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]')
         echo Installing packages: $virtualenv_packages
         ansible-playbook -D playbooks/install-ansible.yml \
-          -e "'"$virtualenv_packages"'" \
+          -e $virtualenv_packages \
           -e "virtualenv_python=python${{ matrix.python_version }}" -t all,debug
 
     - name: check ansible version
