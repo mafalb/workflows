@@ -21,7 +21,6 @@ jobs:
     uses: ./.github/workflows/reusable-selectbranch.yml
     with:
       targeted_branch: ${{ inputs.targeted_branch }}
-    needs: lint
 
   ansiblecollection_info:
     runs-on: ubuntu-22.04
