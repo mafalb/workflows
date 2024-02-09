@@ -18,11 +18,17 @@ on:  # yamllint disable-line rule:truthy
       scenario:
         type: string
         default: default
-      target:
-        type: string
       filename:
         type: string
-
+      target:
+        description: The OS we will test on. An env file will be used.
+        type: string
+      hostname:
+        description: The hostname. Mutually exclusive to target.
+        type: string
+      image:
+        description: The image. Mutually exclusive to target.
+        type: string
 
 jobs:
 
@@ -108,9 +114,15 @@ jobs:
         env:
           ENV_FILE: $GITHUB_WORKSPACE/workflows/env/${{ inputs.target }}.yml
           SCENARIO: ${{ inputs.scenario }}
+          CI_HOSTNAME: ${{ inputs.hostname }}
+          CI_IMAGE: ${{ inputs.image }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           tree -a
-          molecule -e "$ENV_FILE" -c molecule/resources/molecule.yml test -s "$SCENARIO"
+          if -n "$ENV_FILE"; then
+              molecule -e "$ENV_FILE" -c molecule/resources/molecule.yml test -s "$SCENARIO"
+          else
+              molecule -c molecule/resources/molecule.yml test -s "$SCENARIO"
+          fi
 
 ...
