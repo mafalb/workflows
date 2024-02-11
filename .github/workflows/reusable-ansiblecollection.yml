@@ -12,7 +12,7 @@ on:  # yamllint disable-line rule:truthy
   # make it reusable
   workflow_call:
     inputs:
-      ref:
+      targeted_branch:
         type: string
         required: true
       filename:
@@ -36,16 +36,6 @@ jobs:
       matrix:
 
         include:
-
-          - ansible_version: '2.12'
-            python_version: '3.9'
-            # antsibull needs at least ansible 2.13
-            nodoc: true
-
-          - ansible_version: '2.12'
-            python_version: '3.10'
-            # antsibull needs at least ansible 2.13
-            nodoc: true
 
           - ansible_version: '2.14'
             python_version: '3.9'
@@ -76,52 +66,29 @@ jobs:
 
     steps:
 
+      - name: Checkout workflows
+        uses: actions/checkout@v4
+        with:
+          repository: mafalb/workflows
+          path: workflows
+
       - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
 
-      # We use the stable branch
-      - name: Checkout mafalb.ansible - we need it for tests
-        working-directory: ${{ github.workspace }}
-        run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git -p collections
-
-      - name: Install ansible
-        working-directory: collections/ansible_collections/mafalb/ansible
-        env:
-          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
-        run: |
-          ansible-playbook -D playbooks/install-ansible.yml \
-            -e '{"virtualenv_packages":["_ansible==${{ matrix.ansible_version }}",
-                                        "ansible-lint",
-                                        "_ansible_test", "flake8", "antsibull-docs", "rstcheck-core"]}'\
-            -e virtualenv_python=python${{ matrix.python_version }} -t all,debug
-
-      - name: check ansible version
-        run: |
-          source ~/.virtualenvs/ansible/bin/activate
-          ansible --version
-          ansible --version | grep "^ansible.* ${{ matrix.ansible_version }}"
-
-      - name: check python version
-        run: |
-          source ~/.virtualenvs/ansible/bin/activate
-          ansible --version | grep "^\s*python.* ${{ matrix.python_version }}"
-
-      # Move it out of the way, it could be that we want to test an unstable version of it
-      - name: Remove the downloaded collection again
-        env:
-          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
-        run: |
-          source ~/.virtualenvs/ansible/bin/activate
-          rm -fr collections/ansible_collections/mafalb/ansible
-          ansible-galaxy collection list
+      - name: Install Ansible
+        uses: ./workflows/.github/actions/installansible
+        with:
+          ansible_version: ${{ matrix.ansible_version }}
+          python_version: ${{ matrix.python_version }}
+          ref: workflow
 
       - name: Download the collection artifact
         if: inputs.filename
         uses: actions/download-artifact@v4
         with:
-          name: ansible-collections-${{ inputs.ref }}
+          name: ansible-collections-${{ inputs.targeted_branch }}
 
       # Download the needed collections
       # We use ansible-galaxy, not actions/checkout
@@ -132,9 +99,8 @@ jobs:
           FILENAME: ${{ inputs.filename }}
           SERVER_URL: ${{ github.server_url }}
           CI_REPO: ${{ github.repository }}
-          CI_REF: ${{ github.ref }}
+          CI_REF: ${{ github.sha }}
         run: |
-
           # install the collection we want to test
           if test -n "$FILENAME"; then
               ansible-galaxy collection install "$FILENAME" -p collections
@@ -142,27 +108,31 @@ jobs:
               ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
           fi
 
-      - name: Get Info about installed collection
-        working-directory: ${{ github.workspace }}
+      - name: Get Info
+        id: info
+        env:
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+          SERVER: raw.githubusercontent.com
+        uses: ./workflows/.github/actions/ansiblecollectioninfo
+        with:
+          targeted_action: ${{ github.sha }}
+          filename: ${{ inputs.filename }}
+
+      - name: Set working directory
+        env:
+          namespace: ${{ steps.info.outputs.namespace }}
+          collection_name: ${{ steps.info.outputs.collection_name }}
         run: |
-
-          # note that namespace and collection_name are not necessarily the same
-          # as github.repository_owner and similar variables.
-          # the naming of the repository and collection_name can be disconnected
-          #
-          # we determine namespace and collection_name
-          # this works because we know that we installed just one collection
-          #
-          namespace=$(basename $(ls -d collections/ansible_collections/*/))
-          collection_name=$(basename $(ls -d collections/ansible_collections/*/*/))
-
-          echo collection $namespace/$collection_name
-          tree collections
-
-          # save the directory of our collection for future use
-          echo working-directory=collections/ansible_collections/$namespace/$collection_name >>"$GITHUB_ENV"
-          echo "collection_name=$collection_name" >>$GITHUB_ENV
-          echo "namespace=$namespace" >>$GITHUB_ENV
+          test -n "$namespace"
+          test -n "$collection_name"
+          # we use info from galaxy.yml in above Get Info step
+          # be paranoid
+          cd collections/ansible_collections/$namespace/$collection_name
+          pwd
+          tree
+          grep ^galaxy.yml .github/CODEOWNERS
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
       - name: yamllint
         working-directory: ${{ env.working-directory }}

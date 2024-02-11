@@ -21,7 +21,22 @@ jobs:
     uses: ./.github/workflows/reusable-selectbranch.yml
     with:
       targeted_branch: ${{ inputs.targeted_branch }}
-    needs: lint
+
+  ansiblecollection_info:
+    runs-on: ubuntu-22.04
+    needs: selectbranch
+    steps:
+      - name: Checkout workflows
+        uses: actions/checkout@v4
+      - name: Get Info about mafalb.ansible
+        uses: ./.github/actions/ansiblecollectioninfo
+        with:
+          targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+          repository: mafalb/ansible-collection-ansible
+      - name: Assertions
+        run: |
+          test "$collection_name" = "ansible"
+          test "$namespace" = "mafalb"
 
   createansiblecollection:
     runs-on: ubuntu-22.04
@@ -34,7 +49,7 @@ jobs:
         with:
           repository: mafalb/skeletons
           path: skeletons
-          ref: ${{ needs.selectbranch.outputs.ref }}
+          ref: f-dev
 
       - name: Create directory for collections
         run: mkdir ansible_collections
@@ -44,6 +59,7 @@ jobs:
         run: |
           ansible-galaxy collection init --collection-skeleton ../skeletons/ansible-collection-skeleton local.ci
           ansible-galaxy collection install -r local/ci/requirements.yml
+
       - name: Collectionrole | create a new role
         working-directory: ansible_collections
         run: |
@@ -74,7 +90,18 @@ jobs:
     uses: ./.github/workflows/reusable-ansiblecollection.yml
     with:
       filename: local-ci-0.1.0.tar.gz
-      ref: ${{ needs.selectbranch.outputs.ref }}
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+
+  molecule:
+    needs:
+      - selectbranch
+      - createansiblecollection
+    uses: ./.github/workflows/reusable-molecule.yml
+    with:
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+      filename: local-ci-0.1.0.tar.gz
+      hostname: ci-system
+      target: ubuntu22
 
   allsuccess:
     if: success() || failure()
@@ -84,6 +111,8 @@ jobs:
     needs:
       - lint
       - selectbranch
+      - ansiblecollection_info
       - createansiblecollection
       - ansiblecollection
+      - molecule
 ...

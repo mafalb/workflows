@@ -1,0 +1,135 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+
+name: Molecule
+
+on:  # yamllint disable-line rule:truthy
+
+  # make it reusable
+  workflow_call:
+    inputs:
+      targeted_branch:
+        type: string
+        required: true
+      scenario:
+        type: string
+        default: default
+      filename:
+        type: string
+      target:
+        description: The OS we will test on. An env file will be used.
+        type: string
+      hostname:
+        description: The hostname. Mutually exclusive to target.
+        type: string
+      image:
+        description: The image. Mutually exclusive to target.
+        type: string
+      ansible_version:
+        type: string
+      python_version:
+        type: string
+        default: '3.11'
+
+jobs:
+
+  molecule:
+
+    runs-on: ubuntu-20.04
+
+    env:
+      CI_IMAGE: ${{ matrix.image }}
+      CI_HOSTNAME: ci-${{ matrix.os }}
+      CI_DRIVER: podman
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      TARGETED_BRANCH: ${{ inputs.targeted_branch }}
+
+    steps:
+
+      - name: Checkout workflows
+        uses: actions/checkout@v4
+        with:
+          repository: mafalb/workflows
+          path: workflows
+          ref: f-ansiblecollection
+
+      - name: Install Ansible
+        uses: ./workflows/.github/actions/installansible
+        with:
+          extra_packages: 'molecule-plugins[podman],molecule'
+          ref: dev
+          python_version: ${{ inputs.python_version }}
+
+      - name: Download the collection artifact
+        if: inputs.filename
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-collections-${{ inputs.targeted_branch }}
+
+      # Download the needed collections
+      # We use ansible-galaxy, not actions/checkout
+      #
+      - name: Install the collection we want to test
+        working-directory: ${{ github.workspace }}
+        env:
+          FILENAME: ${{ inputs.filename }}
+          SERVER_URL: ${{ github.server_url }}
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+        run: |
+          # install the collection we want to test
+          if test -n "$FILENAME"; then
+              ansible-galaxy collection install "$FILENAME" -p collections
+          else
+              ansible-galaxy collection install git+"$SERVER_URL"/"$CI_REPO".git,"$CI_REF" -p collections
+          fi
+
+      - name: Get Info
+        id: info
+        env:
+          CI_REPO: ${{ github.repository }}
+          CI_REF: ${{ github.sha }}
+          SERVER: raw.githubusercontent.com
+        uses: ./workflows/.github/actions/ansiblecollectioninfo
+        with:
+          targeted_branch: ${{ github.sha }}
+          filename: ${{ inputs.filename }}
+
+      - name: Set working directory
+        env:
+          namespace: ${{ steps.info.outputs.namespace }}
+          collection_name: ${{ steps.info.outputs.collection_name }}
+        run: |
+          test -n "$namespace"
+          test -n "$collection_name"
+          # we use info from galaxy.yml in above Get Info step
+          # be paranoid
+          cd collections/ansible_collections/$namespace/$collection_name
+          pwd
+          tree
+          grep ^galaxy.yml .github/CODEOWNERS
+          echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
+
+      - name: run molecule tests
+        working-directory: ${{ env.working-directory }}
+        env:
+          CI_TARGET: ${{ inputs.target }}
+          ENV_FILE: molecule/env-${{ inputs.target }}.yml
+          SCENARIO: ${{ inputs.scenario }}
+          CI_HOSTNAME: ${{ inputs.hostname }}
+          CI_IMAGE: ${{ inputs.image }}
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          tree -a
+          if test -n "$CI_TARGET"; then
+              molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$SCENARIO"
+          else
+              molecule -c molecule/molecule.yml test -s "$SCENARIO"
+          fi
+
+...
