@@ -99,6 +99,7 @@ jobs:
     uses: ./.github/workflows/reusable-molecule.yml
     with:
       targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+      filename: local-ci-0.1.0.tar.gz
 
   allsuccess:
     if: success() || failure()
