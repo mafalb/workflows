@@ -29,12 +29,17 @@ on:  # yamllint disable-line rule:truthy
       image:
         description: The image. Mutually exclusive to target.
         type: string
+      ansible_version:
+        type: string
+      python_version:
+        type: string
+        default: '3.11'
 
 jobs:
 
   molecule:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     env:
       CI_IMAGE: ${{ matrix.image }}
@@ -58,6 +63,7 @@ jobs:
         with:
           extra_packages: 'molecule-plugins[podman],molecule'
           ref: dev
+          python_version: ${{ inputs.python_version }}
 
       - name: Download the collection artifact
         if: inputs.filename
