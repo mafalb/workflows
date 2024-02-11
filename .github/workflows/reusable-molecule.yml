@@ -112,6 +112,7 @@ jobs:
       - name: run molecule tests
         working-directory: ${{ env.working-directory }}
         env:
+          CI_TARGET: ${{ inputs.target }}
           ENV_FILE: molecule/env-${{ inputs.target }}.yml
           SCENARIO: ${{ inputs.scenario }}
           CI_HOSTNAME: ${{ inputs.hostname }}
@@ -119,7 +120,7 @@ jobs:
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           tree -a
-          if test -n "$ENV_FILE"; then
+          if test -n "$CI_TARGET"; then
               molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$SCENARIO"
           else
               molecule -c molecule/molecule.yml test -s "$SCENARIO"
