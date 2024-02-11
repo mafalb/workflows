@@ -119,7 +119,7 @@ jobs:
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           tree -a
-          if -n "$ENV_FILE"; then
+          if test -n "$ENV_FILE"; then
               molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$SCENARIO"
           else
               molecule -c molecule/molecule.yml test -s "$SCENARIO"
