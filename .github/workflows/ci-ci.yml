@@ -49,7 +49,7 @@ jobs:
         with:
           repository: mafalb/skeletons
           path: skeletons
-          ref: f-dev
+          ref: ${{ needs.selectbranch.outputs.ref }}
 
       - name: Create directory for collections
         run: mkdir ansible_collections
