@@ -1,0 +1,57 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+name: 'Ansible Collection Info'
+description: 'Get Info about remote ansible collection'
+inputs:
+  targeted_branch:
+    description: 'The targeted branch for remote requests'
+    required: true
+  filename:
+    description: 'The filename of  a tar.gz if the collection is not remote'
+  repository:
+    description: 'Optional repo namespace/name'
+    default: ${{ github.repository }}
+outputs:
+  namespace:
+    value: ${{ steps.info.outputs.namespace }}
+  collection_name:
+    value: ${{ steps.info.outputs.collection_name }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Info about installed collection
+      shell: bash
+      id: info
+      env:
+        CI_REPO: ${{ inputs.repository }}
+        CI_REF: ${{ inputs.targeted_branch }}
+        SERVER: raw.githubusercontent.com
+        FILENAME: ${{ inputs.filename }}
+      run: |
+
+        if test -n "$FILENAME"; then
+            # local mode
+            read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
+        else
+            read namespace name < <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | python3 <(cat << EOF
+        import sys, yaml, json
+        y=yaml.safe_load(sys.stdin.read())
+        print(json.dumps(y))
+        EOF
+        ) | jq -r '.namespace + " " + .name')
+        fi
+
+        test -n "$namespace"
+        test -n "$name"
+
+        echo "namespace=$namespace" >>$GITHUB_ENV
+        echo "collection_name=$name" >>$GITHUB_ENV
+        echo "namespace=$namespace" >>$GITHUB_OUTPUT
+        echo "collection_name=$name" >>$GITHUB_OUTPUT
+
+...

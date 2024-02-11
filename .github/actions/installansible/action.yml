@@ -1,0 +1,97 @@
+# vim: set ft=yaml ts=2 expandtab:
+#
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+name: 'Install Ansible'
+description: 'Install ansible into a virtualenv'
+inputs:
+  ref:
+    description: 'The version of the collection to use'
+    type: string
+    required: true
+  ansible_version:
+    description: 'The version of ansible'
+    type: string
+  python_version:
+    description: 'The version of python'
+    type: string
+    default: 3
+  extra_packages:
+    description: 'The pip packages we want to install'
+    type: string
+
+runs:
+  using: "composite"
+
+  steps:
+
+    - name: Assertions
+      shell: bash
+      run: |
+        test -n ${{ github.workspace }}
+        test -n ${{ github.server_url }}
+
+    - name: setup python
+      if: inputs.python_version != '3'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    # We use the stable branch
+    - name: Checkout mafalb.ansible - we need it for tests
+      env:
+        REF: ${{ inputs.ref }}
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: ansible-galaxy collection install git+${{ github.server_url }}/mafalb/ansible-collection-ansible.git,"$REF" -p collections
+
+    - name: Install ansible
+      shell: bash
+      working-directory: collections/ansible_collections/mafalb/ansible
+      env:
+        ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+        ANSIBLE_EXTRA_PACKAGES: ${{ inputs.extra_packages }}
+        ANSIBLE_VERSION: ${{ inputs.ansible_version }}
+      run: |
+        set -x
+        if test -n "$ANSIBLE_VERSION"; then
+            virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|\
+                jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible==${{ inputs.ansible_version }}",
+                                                                                      "ansible-lint", "_ansible_test", "flake8",
+                                                                                      "antsibull-docs", "rstcheck-core"]')
+        else
+            virtualenv_packages=$(echo -e $ANSIBLE_EXTRA_PACKAGES|\
+                jq -crR '{"virtualenv_packages": split(",")}|.virtualenv_packages += ["_ansible",
+                                                                                      "ansible-lint", "_ansible_test", "flake8",
+                                                                                      "antsibull-docs", "rstcheck-core"]')
+        fi
+        echo Installing packages: $virtualenv_packages
+        ansible-playbook -D playbooks/install-ansible.yml \
+          -e $virtualenv_packages \
+          -e "virtualenv_python=python${{ inputs.python_version }}" -t all,debug
+
+    - name: check ansible version
+      shell: bash
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        ansible --version
+        ansible --version | grep "^ansible.* ${{ inputs.ansible_version }}"
+
+    - name: check python version
+      shell: bash
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        ansible --version | grep "^\s*python.* ${{ inputs.python_version }}"
+
+    # Move it out of the way, it could be that we want to test an unstable version of it
+    - name: Remove the downloaded collection again
+      shell: bash
+      env:
+        ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+      run: |
+        source ~/.virtualenvs/ansible/bin/activate
+        rm -fr collections/ansible_collections/mafalb/ansible
+        ansible-galaxy collection list
+...
