@@ -100,7 +100,8 @@ jobs:
     with:
       targeted_branch: ${{ needs.selectbranch.outputs.ref }}
       filename: local-ci-0.1.0.tar.gz
-      target: rocky9
+      hostname: ci-system
+      image: docker.io/ubuntu:22.04
 
   allsuccess:
     if: success() || failure()
