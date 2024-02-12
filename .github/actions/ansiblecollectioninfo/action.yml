@@ -56,7 +56,7 @@ runs:
         print(json.dumps(y))" < \
             <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml")|\
             jq -r '.namespace + " " + .name' >/tmp/ansiblecollectioninfo.txt
-            read namespace name <(cat /tmp/ansiblecollectioninfo.txt)
+            read namespace name </tmp/ansiblecollectioninfo.txt
         fi
 
         test -n "$namespace"
