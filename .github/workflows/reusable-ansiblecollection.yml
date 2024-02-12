@@ -143,31 +143,53 @@ jobs:
           source ~/.virtualenvs/ansible/bin/activate
           yamllint -s .
 
+      - name: lint molecule
+        working-directory: ${{ env.working-directory }}
+        env:
+          ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+        run: |
+          source ~/.virtualenvs/ansible/bin/activate
+          if test -f molecule/requirements.yml; then
+              ansible-galaxy collection install -r molecule/requirements.yml
+          fi
+          ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
+          if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
+              if test -f .ansible-lint-4; then
+                  echo "ansible-lint -c .ansible-lint-4 $ANSIBLE_LINT_VERSION..."
+                  ansible-lint -v -c .ansible-lint-4 molecule
+              fi
+          elif test "${ANSIBLE_LINT_VERSION}" == "6.8.6" -a -f .ansible-lint-6.8.6; then
+              echo "ansible-lint $ANSIBLE_LINT_VERSION..."
+              ansible-lint -v --offline -c .ansible-lint-6.8.6 molecule
+          elif test -f .ansible-lint-"$ANSIBLE_LINT_VERSION"; then
+              echo "ansible-lint -c .ansible-lint-$ANSIBLE_LINT_VERSION..."
+              ansible-lint -v -c .ansible-lint-"$ANSIBLE_LINT_VERSION" molecule
+          else
+              echo "ansible-lint $ANSIBLE_LINT_VERSION..."
+              ansible-lint -v molecule
+          fi
+
       - name: lint
         working-directory: ${{ env.working-directory }}
         env:
           ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
           source ~/.virtualenvs/ansible/bin/activate
-          mkdir /tmp/collections
-          echo ansible-galaxy
-          set -x
-          ansible-galaxy collection list
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
           if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
               if test -f .ansible-lint-4; then
                   echo "ansible-lint -c .ansible-lint-4 $ANSIBLE_LINT_VERSION..."
-                  ansible-lint -v -c .ansible-lint-4
+                  ansible-lint -v -c .ansible-lint-4 --exclude molecule
               fi
           elif test "${ANSIBLE_LINT_VERSION}" == "6.8.6" -a -f .ansible-lint-6.8.6; then
               echo "ansible-lint $ANSIBLE_LINT_VERSION..."
-              ansible-lint -v --offline -c .ansible-lint-6.8.6
+              ansible-lint -v --offline -c .ansible-lint-6.8.6 --exclude molecule
           elif test -f .ansible-lint-"$ANSIBLE_LINT_VERSION"; then
               echo "ansible-lint -c .ansible-lint-$ANSIBLE_LINT_VERSION..."
-              ansible-lint -v -c .ansible-lint-"$ANSIBLE_LINT_VERSION"
+              ansible-lint -v -c .ansible-lint-"$ANSIBLE_LINT_VERSION" --exclude molecule
           else
               echo "ansible-lint $ANSIBLE_LINT_VERSION..."
-              ansible-lint -v
+              ansible-lint -v --exclude molecule
           fi
 
       - name: install shellcheck
