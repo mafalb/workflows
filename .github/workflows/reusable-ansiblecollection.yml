@@ -153,7 +153,6 @@ jobs:
           echo ansible-galaxy
           set -x
           ansible-galaxy collection list
-          cat requirements.yml
           ANSIBLE_LINT_VERSION=$(NO_COLOR=1 ansible-lint --version | awk '/^ansible-lint / {print $2}')
           if [[ "$ANSIBLE_LINT_VERSION" =~ ^4 ]]; then
               if test -f .ansible-lint-4; then
