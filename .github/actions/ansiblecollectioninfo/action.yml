@@ -15,10 +15,6 @@ inputs:
   repository:
     description: 'Optional repo namespace/name'
     default: ${{ github.repository }}
-  python_version:
-    description: The version of the python interpreter
-    type: string
-    default: 3
 outputs:
   namespace:
     value: ${{ steps.info.outputs.namespace }}
@@ -27,15 +23,7 @@ outputs:
 
 runs:
   using: "composite"
-
   steps:
-
-    - name: setup python
-      if: inputs.python_version != '3'
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python_version }}
-
     - name: Get Info about installed collection
       shell: bash
       id: info
@@ -44,19 +32,19 @@ runs:
         CI_REF: ${{ inputs.targeted_branch }}
         SERVER: raw.githubusercontent.com
         FILENAME: ${{ inputs.filename }}
-        PYTHON: python${{ inputs.python_version }}
       run: |
+
         if test -n "$FILENAME"; then
             # local mode
             read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
         else
-            $PYTHON -c "
+            pip install pyyaml
+            read namespace name < <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | python3 <(cat << EOF
         import sys, yaml, json
         y=yaml.safe_load(sys.stdin.read())
-        print(json.dumps(y))" < \
-            <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml")|\
-            jq -r '.namespace + " " + .name' >/tmp/ansiblecollectioninfo.txt
-            read namespace name </tmp/ansiblecollectioninfo.txt
+        print(json.dumps(y))
+        EOF
+        ) | jq -r '.namespace + " " + .name')
         fi
 
         test -n "$namespace"
