@@ -15,6 +15,10 @@ inputs:
   repository:
     description: 'Optional repo namespace/name'
     default: ${{ github.repository }}
+  python_version:
+    description: The version of the python interpreter
+    type: string
+    default: 3
 outputs:
   namespace:
     value: ${{ steps.info.outputs.namespace }}
@@ -23,7 +27,15 @@ outputs:
 
 runs:
   using: "composite"
+
   steps:
+
+    - name: setup python
+      if: inputs.python_version != '3'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
     - name: Get Info about installed collection
       shell: bash
       id: info
