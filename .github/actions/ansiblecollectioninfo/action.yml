@@ -51,12 +51,13 @@ runs:
             # local mode
             read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
         else
-            curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | $PYTHON <(cat << EOF
+
+            curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | $PYTHON
+            $PYTHON -c "
         import sys, yaml, json
         y=yaml.safe_load(sys.stdin.read())
-        print(json.dumps(y))
-        EOF
-        ) | jq -r '.namespace + " " + .name' >/tmp/ansiblecollectioninfo.txt
+        print(json.dumps(y))") |\
+            jq -r '.namespace + " " + .name' >/tmp/ansiblecollectioninfo.txt
             read namespace name <(cat /tmp/ansiblecollectioninfo.txt)
         fi
 
