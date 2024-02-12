@@ -38,6 +38,27 @@ jobs:
           test "$collection_name" = "ansible"
           test "$namespace" = "mafalb"
 
+  ansiblecollection_info_with_python:
+    runs-on: ubuntu-22.04
+    needs: selectbranch
+    steps:
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Checkout workflows
+        uses: actions/checkout@v4
+      - name: Get Info about mafalb.ansible
+        uses: ./.github/actions/ansiblecollectioninfo
+        with:
+          targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+          repository: mafalb/ansible-collection-ansible
+          python_version: 3.11
+      - name: Assertions
+        run: |
+          test "$collection_name" = "ansible"
+          test "$namespace" = "mafalb"
+
   createansiblecollection:
     runs-on: ubuntu-22.04
     needs: selectbranch
@@ -112,6 +133,7 @@ jobs:
       - lint
       - selectbranch
       - ansiblecollection_info
+      - ansiblecollection_info_with_python
       - createansiblecollection
       - ansiblecollection
       - molecule

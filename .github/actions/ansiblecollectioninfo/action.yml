@@ -38,6 +38,7 @@ runs:
             # local mode
             read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
         else
+            pip install pyyaml
             read namespace name < <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | python3 <(cat << EOF
         import sys, yaml, json
         y=yaml.safe_load(sys.stdin.read())
