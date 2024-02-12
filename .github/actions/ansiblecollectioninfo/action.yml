@@ -44,18 +44,26 @@ runs:
         CI_REF: ${{ inputs.targeted_branch }}
         SERVER: raw.githubusercontent.com
         FILENAME: ${{ inputs.filename }}
+        PYTHON: python${{ inputs.python_version }}
       run: |
 
         if test -n "$FILENAME"; then
             # local mode
             read namespace name rest < <(echo "$FILENAME" | sed 's/-/ /g')
         else
-            read namespace name < <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | python3 <(cat << EOF
+            read namespace name < <(curl -s "https://$SERVER/$CI_REPO/$CI_REF/galaxy.yml" | $PYTHON <(cat << EOF
         import sys, yaml, json
         y=yaml.safe_load(sys.stdin.read())
         print(json.dumps(y))
         EOF
         ) | jq -r '.namespace + " " + .name')
+
+        python3 <(cat << EOF
+        import sys, yaml, json
+        y=yaml.safe_load(sys.stdin.read())
+        print(json.dumps(y))
+        EOF
+        ) < <(curl -s "https://raw.githubusercontent.com/mafalb/ansible-collection-squid/master/galaxy.yml") | jq -r '.namespace + " " + .name' | read namespace name
         fi
 
         test -n "$namespace"
