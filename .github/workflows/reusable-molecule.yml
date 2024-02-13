@@ -133,7 +133,7 @@ jobs:
           fi
 
       - name: Debug
-        if: success() || failure()
+        if: failure()
         working-directory: ${{ env.working-directory }}
         env:
           CI_TARGET: ${{ inputs.target }}
@@ -141,8 +141,9 @@ jobs:
           ENV_FILE: molecule/env-${{ inputs.target }}.yml
         run: |
           podman network ls
-          podman network inspect molecule-external
-          podman network inspect molecule-internal
+          while read n; do
+            podman network inspect "$n"
+          done < <(podman network ls -q)
           if test -n "$CI_TARGET"; then
               source "$ENV_FILE"
           fi
