@@ -118,7 +118,6 @@ jobs:
         with:
           targeted_branch: ${{ github.sha }}
           filename: ${{ inputs.filename }}
-          python_version: ${{ matrix.python_version }}
 
       - name: Set working directory
         env:
