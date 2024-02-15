@@ -17,6 +17,16 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
+  sanity:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check default branch is called 'main'
+        run: |
+          default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
+          echo default branch is "$default"
+          test "$default" = "main" -o "$default" = "dev"
+
   reusables:
 
     runs-on: ubuntu-latest
