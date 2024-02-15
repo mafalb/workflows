@@ -22,11 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Default branch
+        env:
+          REPO: ${{ github.server_url }}/${{ github.repository }}
         run: |
-          default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
+          default=$(git ls-remote --symref "$REPO" HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
           echo default branch is "$default"
           test ! "$default" = "master"
-          test 1 -eq 2
 
   reusables:
     name: Reusables @dev
@@ -39,8 +40,8 @@ jobs:
 
       - name: Debug
         run: |
-          echo "$BASE_BRANCH"
-          echo "$HEAD_BRANCH"
+          echo base branch "$BASE_BRANCH"
+          echo head branch "$HEAD_BRANCH"
 
       - name: Checkout ourself
         uses: actions/checkout@v4
