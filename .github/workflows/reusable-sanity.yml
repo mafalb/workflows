@@ -36,7 +36,7 @@ jobs:
 
       - name: Check default branch is called 'main'
         run: |
-          default=$(git ls-remote --symref ${{ github.repositoryUrl }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
+          default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
           test "$default" = "main"
 
       - name: Check for @dev references to reusable workflows
