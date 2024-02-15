@@ -14,17 +14,13 @@ on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       joblist:
-        # if your argument was a list, we have it in json here
         type: string
-      continue-on-error:
-        type: boolean
-        default: false
 
 jobs:
 
   checksuccess:
-    if: always()
-    runs-on: ubuntu-22.04
+    if: success() || failure()
+    runs-on: ubuntu-latest
 
     steps:
 
@@ -35,10 +31,9 @@ jobs:
           echo "${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}"
 
       - name: Decide whether the needed jobs succeeded or failed
-        # Avoid running twice when pull-request from same repo
-        if: ${{ ! (github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: success() || failure()
         uses: re-actors/alls-green@release/v1
         with:
-          # already in json format
+          # already in json format, but...
           jobs: ${{ toJSON(fromJSON(inputs.joblist)) }}
 ...
