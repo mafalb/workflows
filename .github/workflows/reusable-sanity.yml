@@ -34,6 +34,11 @@ jobs:
       - name: Checkout ourself
         uses: actions/checkout@v4
 
+      - name: Check default branch is called 'main'
+        run: |
+          default=$(git ls-remote --symref ${{ repositoryUrl }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
+          test "$default" = "main"
+
       - name: Check for @dev references to reusable workflows
         # pull_request against main or branch is main
         if: |
