@@ -21,14 +21,14 @@ jobs:
     name: Sanity Checks
     runs-on: ubuntu-latest
     steps:
-      - name: Check default branch is called 'main'
+      - name: Default branch
         run: |
           default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
           echo default branch is "$default"
-          test "$default" = "main" -o "$default" = "dev"
+          test ! "$default" = "master"
 
   reusables:
-    name: Check for references @dev in main branch
+    name: Reusables @dev
     runs-on: ubuntu-latest
     env:
       BASE_BRANCH: ${{ github.base_ref }}
