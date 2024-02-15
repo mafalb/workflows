@@ -26,13 +26,15 @@ jobs:
       - name: Return the targeted branch for downloads from other repositories
         id: stepx
         run: |
-            if test "${{ inputs.targeted_branch }}" = "main"; then
-                branch="main"
-            elif test "${{ github.ref_name }}" = "main"; then
-                branch="main"
-            elif test "${{ github.base_ref }}" = "main"; then
+            if test "${{ inputs.targeted_branch }}" = "prod"; then
+                branch="prod"
+            elif test "${{ inputs.targeted_branch }}" = "main"; then
+                branch="prod"
+            elif test "${{ github.ref_name }}" = "prod"; then
+                branch="prod"
+            elif test "${{ github.base_ref }}" = "prod"; then
                 # pull-request
-                branch="main"
+                branch="prod"
             else
                 branch="dev"
             fi
