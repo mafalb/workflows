@@ -23,9 +23,6 @@ jobs:
 
     steps:
 
-      - name: Check CODEOWNERS
-        run: test -f .github/CODEOWNERS
-
       - name: Default branch
         env:
           REPO: ${{ github.server_url }}/${{ github.repository }}
@@ -33,6 +30,12 @@ jobs:
           default=$(git ls-remote --symref "$REPO" HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
           echo default branch is "$default"
           test ! "$default" = "master"
+
+      - name: Checkout ourself
+        uses: actions/checkout@v4
+
+      - name: Check CODEOWNERS
+        run: test -f .github/CODEOWNERS
 
   reusables:
     name: Reusables @dev
