@@ -17,8 +17,8 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
-  sanity:
-
+  defaultbranch:
+    name: Sanity Checks
     runs-on: ubuntu-latest
     steps:
       - name: Check default branch is called 'main'
@@ -28,7 +28,7 @@ jobs:
           test "$default" = "main" -o "$default" = "dev"
 
   reusables:
-
+    name: Check for references @dev in main branch
     runs-on: ubuntu-latest
     env:
       BASE_BRANCH: ${{ github.base_ref }}
