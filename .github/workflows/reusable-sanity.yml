@@ -17,6 +17,16 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
+  sanity:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check default branch is called 'main'
+        run: |
+          default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
+          echo default branch is "$default"
+          test "$default" = "main"
+
   reusables:
 
     runs-on: ubuntu-latest
@@ -33,12 +43,6 @@ jobs:
 
       - name: Checkout ourself
         uses: actions/checkout@v4
-
-      - name: Check default branch is called 'main'
-        run: |
-          default=$(git ls-remote --symref ${{ github.server_url }}/${{ github.repository }} HEAD | awk -F'[/\t]' 'NR == 1 {print $3}')
-          echo default branch is "$default"
-          test "$default" = "main"
 
       - name: Check for @dev references to reusable workflows
         # pull_request against main or branch is main
