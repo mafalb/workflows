@@ -19,7 +19,6 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   checksuccess:
-    name: Every Job was success
     if: success() || failure()
     runs-on: ubuntu-latest
 
