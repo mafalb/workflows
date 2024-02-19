@@ -2,8 +2,8 @@
 
 |||
 |---|---|
-|prod|![prod branch](https://github.com/mafalb/ansible-collection-squid/workflows/CI/badge.svg?branch=prod)|
-|dev|![dev branch](https://github.com/mafalb/ansible-collection-squid/workflows/CI/badge.svg?branch=dev)|
+|prod|![prod branch](https://github.com/mafalb/workflows/actions/workflows/CI.yml/badge.svg?branch=prod)|
+|dev|![dev branch](https://github.com/mafalb/workflows/actions/workflows/CI.yml/badge.svg?branch=dev)|
 
 ## License
 
