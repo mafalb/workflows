@@ -132,9 +132,13 @@ jobs:
           if test -z "$SCENARIOS"; then
               test -n "$SCENARIO"
               SCENARIOS="$SCENARIO"
+          else
+              IFSOLD="$IFS"
+              IFS=$'[, \t\n]' read -a scenarios <<< "$SCENARIOS"
+              IFS="$IFSOLD,"
           fi
           # loop scenarios
-          while IFS=',|, ' read scenario; do
+          while read scenario; do
               echo "::group::Molecule scenario $scenario"
               if test -n "$CI_TARGET"; then
                   molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$scenario"
@@ -142,7 +146,7 @@ jobs:
                   molecule -c molecule/molecule.yml test -s "$scenario" --destroy never
               fi
               echo "::endgroup::"
-          done <<< "$SCENARIOS"
+          done <<< "$scenarios"
 
       - name: Debug
         if: failure()
