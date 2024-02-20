@@ -37,6 +37,11 @@ on:  # yamllint disable-line rule:truthy
         type: string
         default: '3.11'
 
+    outputs:
+      scenariocount:
+        description: The count of tested scenarios
+        value: ${{ steps.molecule.outputs.i }}
+
 jobs:
 
   molecule:
@@ -118,6 +123,7 @@ jobs:
           echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
       - name: Run molecule tests
+        id: molecule
         working-directory: ${{ env.working-directory }}
         env:
           CI_TARGET: ${{ inputs.target }}
@@ -137,16 +143,19 @@ jobs:
               IFS=$'[, \t\n]' read -a scenarios <<< "$SCENARIOS"
               IFS="$IFSOLD,"
           fi
+          i=1
           # loop scenarios
-          while read scenario; do
+          for scenario in "${scenarios[@]}"; do
               echo "::group::Molecule scenario $scenario"
               if test -n "$CI_TARGET"; then
                   molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$scenario"
               else
                   molecule -c molecule/molecule.yml test -s "$scenario" --destroy never
               fi
+              i=$(( i + 1 ))
               echo "::endgroup::"
-          done <<< "$scenarios"
+          done
+          echo "i=$i" >>$GITHUB_OUTPUT
 
       - name: Debug
         if: failure()

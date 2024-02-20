@@ -135,6 +135,17 @@ jobs:
       target: ubuntu22
       scenarios: "default, default"  # cheating!
 
+  check_loopcount:
+    needs: molecule_multiple_scenarios
+    runs-on: ubuntu-latest
+    env:
+      LOOPCOUNT: ${{ needs.molecule_multiple_scenarios.outputs.scenariocount }}
+    steps:
+      - name: Has looped two times
+        run:
+          # We tested two scenarios in the job before
+          test "$LOOPCOUNT" = 2
+
   allsuccess:
     if: success() || failure()
     uses: ./.github/workflows/reusable-allsuccess.yml
