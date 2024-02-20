@@ -123,6 +123,18 @@ jobs:
       hostname: ci-system
       target: ubuntu22
 
+  molecule_multiple_scenarios:
+    needs:
+      - selectbranch
+      - createansiblecollection
+    uses: ./.github/workflows/reusable-molecule.yml
+    with:
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+      filename: local-ci-0.1.0.tar.gz
+      hostname: ci-system
+      target: ubuntu22
+      scenarios: "default, default"  # cheating!
+
   allsuccess:
     if: success() || failure()
     uses: ./.github/workflows/reusable-allsuccess.yml
@@ -136,4 +148,5 @@ jobs:
       - createansiblecollection
       - ansiblecollection
       - molecule
+      - molecule_multiple_scenarios
 ...
