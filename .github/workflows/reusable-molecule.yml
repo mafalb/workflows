@@ -134,7 +134,7 @@ jobs:
               SCENARIOS="$SCENARIO"
           fi
           # loop scenarios
-          while read IFS=',|, ' scenario; do
+          while IFS=',|, ' read scenario; do
               echo "::group::Molecule scenario $scenario"
               if test -n "$CI_TARGET"; then
                   molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$scenario"
