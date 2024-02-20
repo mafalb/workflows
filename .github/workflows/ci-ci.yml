@@ -135,7 +135,7 @@ jobs:
       target: ubuntu22
       scenarios: "default, default"  # cheating!
 
-  check_loopcount:
+  scenariocount:
     needs: molecule_multiple_scenarios
     runs-on: ubuntu-latest
     env:
@@ -160,4 +160,5 @@ jobs:
       - ansiblecollection
       - molecule
       - molecule_multiple_scenarios
+      - scenariocount
 ...

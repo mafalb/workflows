@@ -40,13 +40,15 @@ on:  # yamllint disable-line rule:truthy
     outputs:
       scenariocount:
         description: The count of tested scenarios
-        value: ${{ steps.molecule.outputs.i }}
+        value: ${{ jobs.molecule.outputs.scenariocount }}
 
 jobs:
 
   molecule:
     name: molecule ${{ inputs.target || inputs.hostname || inputs.filename }}
     runs-on: ubuntu-20.04
+    outputs:
+      scenariocount: ${{ steps.molecule.outputs.i }}
 
     env:
       CI_IMAGE: ${{ matrix.image }}
