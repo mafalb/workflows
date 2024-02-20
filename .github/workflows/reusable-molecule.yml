@@ -18,6 +18,8 @@ on:  # yamllint disable-line rule:truthy
       scenario:
         type: string
         default: default
+      scenarios:
+        type: string
       filename:
         type: string
       target:
@@ -115,7 +117,7 @@ jobs:
           grep ^galaxy.yml .github/CODEOWNERS
           echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
-      - name: run molecule tests
+      - name: Run molecule tests
         working-directory: ${{ env.working-directory }}
         env:
           CI_TARGET: ${{ inputs.target }}
@@ -123,14 +125,24 @@ jobs:
           SCENARIO: ${{ inputs.scenario }}
           CI_HOSTNAME: ${{ inputs.hostname }}
           CI_IMAGE: ${{ inputs.image }}
+          SCENARIOS: ${{ inputs.scenarios }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           tree -a
-          if test -n "$CI_TARGET"; then
-              molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$SCENARIO"
-          else
-              molecule -c molecule/molecule.yml test -s "$SCENARIO" --destroy never
+          if test -z "$SCENARIOS"; then
+              test -n "$SCENARIO"
+              SCENARIOS="$SCENARIO"
           fi
+          # loop scenarios
+          while read IFS=',|, ' scenario; do
+              echo "::group::Molecule scenario $scenario"
+              if test -n "$CI_TARGET"; then
+                  molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$scenario"
+              else
+                  molecule -c molecule/molecule.yml test -s "$scenario" --destroy never
+              fi
+              echo "::endgroup::"
+          done <<< "$SCENARIOS"
 
       - name: Debug
         if: failure()
