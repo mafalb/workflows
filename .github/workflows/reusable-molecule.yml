@@ -40,7 +40,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   molecule:
-
+    name: molecule ${{ input.target }}
     runs-on: ubuntu-20.04
 
     env:
