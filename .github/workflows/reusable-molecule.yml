@@ -46,7 +46,7 @@ jobs:
 
   molecule:
     name: molecule ${{ inputs.target || inputs.hostname || inputs.filename }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       scenariocount: ${{ steps.molecule.outputs.i }}
 
