@@ -146,6 +146,7 @@ jobs:
         working-directory: ${{ env.working-directory }}
         env:
           ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
+          ANSIBLE_ROLES_PATH: molecule/default/roles
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           if test -f molecule/requirements.yml; then
