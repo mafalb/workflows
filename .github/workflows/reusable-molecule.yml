@@ -18,6 +18,8 @@ on:  # yamllint disable-line rule:truthy
       scenario:
         type: string
         default: default
+      scenarios:
+        type: string
       filename:
         type: string
       target:
@@ -35,11 +37,18 @@ on:  # yamllint disable-line rule:truthy
         type: string
         default: '3.11'
 
+    outputs:
+      scenariocount:
+        description: The count of tested scenarios
+        value: ${{ jobs.molecule.outputs.scenariocount }}
+
 jobs:
 
   molecule:
-
-    runs-on: ubuntu-20.04
+    name: molecule ${{ inputs.target || inputs.hostname || inputs.filename }}
+    runs-on: ubuntu-22.04
+    outputs:
+      scenariocount: ${{ steps.molecule.outputs.i }}
 
     env:
       CI_IMAGE: ${{ matrix.image }}
@@ -115,7 +124,8 @@ jobs:
           grep ^galaxy.yml .github/CODEOWNERS
           echo "working-directory=collections/ansible_collections/$namespace/$collection_name" >>$GITHUB_ENV
 
-      - name: run molecule tests
+      - name: Run molecule tests
+        id: molecule
         working-directory: ${{ env.working-directory }}
         env:
           CI_TARGET: ${{ inputs.target }}
@@ -123,14 +133,31 @@ jobs:
           SCENARIO: ${{ inputs.scenario }}
           CI_HOSTNAME: ${{ inputs.hostname }}
           CI_IMAGE: ${{ inputs.image }}
+          SCENARIOS: ${{ inputs.scenarios }}
         run: |
           source ~/.virtualenvs/ansible/bin/activate
           tree -a
-          if test -n "$CI_TARGET"; then
-              molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$SCENARIO"
+          if test -z "$SCENARIOS"; then
+              test -n "$SCENARIO"
+              SCENARIOS="$SCENARIO"
           else
-              molecule -c molecule/molecule.yml test -s "$SCENARIO" --destroy never
+              IFSOLD="$IFS"
+              IFS=$'[, \t\n]' read -a scenarios <<< "$SCENARIOS"
+              IFS="$IFSOLD,"
           fi
+          i=0
+          # loop scenarios
+          for scenario in "${scenarios[@]}"; do
+              echo "::group::Molecule scenario $scenario"
+              if test -n "$CI_TARGET"; then
+                  molecule -e "$ENV_FILE" -c molecule/molecule.yml test -s "$scenario"
+              else
+                  molecule -c molecule/molecule.yml test -s "$scenario" --destroy never
+              fi
+              i=$(( i + 1 ))
+              echo "::endgroup::"
+          done
+          echo "i=$i" >>$GITHUB_OUTPUT
 
       - name: Debug
         if: failure()

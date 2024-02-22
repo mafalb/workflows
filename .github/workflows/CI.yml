@@ -17,7 +17,7 @@ on:  # yamllint disable-line rule:truthy
     - cron: '48 11 * * 5'
   pull_request:
     branches:
-      - main
+      - prod
       - dev
   workflow_dispatch:
     inputs:
