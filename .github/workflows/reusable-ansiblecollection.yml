@@ -231,7 +231,7 @@ jobs:
           fi
 
       - name: mock a role to make documentation test pass
-        if: matrix.ansible_version != 2.12 and ${{ inputs.mock }} == true
+        if: matrix.ansible_version != 2.12 && inputs.mock == true
         working-directory: ${{ env.working-directory }}
         run: |
           mkdir -p roles/role1

@@ -54,8 +54,8 @@ jobs:
       scenariocount: ${{ steps.molecule.outputs.i }}
 
     env:
-      CI_IMAGE: ${{ matrix.image }}
-      CI_HOSTNAME: ci-${{ matrix.os }}
+      CI_IMAGE: ${{ inputs.image }}
+      CI_HOSTNAME: ${{ inputs.hostname }}
       CI_DRIVER: podman
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
