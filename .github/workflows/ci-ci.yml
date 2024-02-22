@@ -31,7 +31,7 @@ jobs:
       - name: Get Info about mafalb.ansible
         uses: ./.github/actions/ansiblecollectioninfo
         with:
-          targeted_branch: dev
+          targeted_branch: dev  # FIX
           repository: mafalb/ansible-collection-ansible
       - name: Assertions
         run: |
