@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Default branch
         env:
           REPO: ${{ github.server_url }}/${{ github.repository }}
@@ -36,6 +35,15 @@ jobs:
 
       - name: Check CODEOWNERS
         run: test -f .github/CODEOWNERS
+
+      - name: Not using master branch in documentation
+        run: |
+          ! grep "master branch" README.md
+          ! grep "main branch" README.md
+          grep "prod branch" README.md
+          grep "dev branch" README.md
+          grep '|prod|' README.md
+          grep '|dev|' README.md
 
   reusables:
     name: Reusables @dev
