@@ -220,9 +220,11 @@ jobs:
 
       - name: integration tests
         working-directory: ${{ env.working-directory }}
+        env:
+          RUN_AS_ROOT: ${{ inputs.run_integration_as_root }}
         run: |
           source "$HOME/.virtualenvs/ansible/bin/activate"
-          if ${{ run_integration_as_root }}
+          if test "$RUN_AS_ROOT" = "true"; then
               sudo ansible-test integration --requirements --python ${{ matrix.python_version }}
           else
               ansible-test integration --requirements --python ${{ matrix.python_version }}
