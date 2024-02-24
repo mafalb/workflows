@@ -20,6 +20,9 @@ on:  # yamllint disable-line rule:truthy
       mock:
         type: boolean
         default: false
+      run_integration_as_root:
+        type: boolean
+        default: false
 
 jobs:
 
@@ -217,9 +220,15 @@ jobs:
 
       - name: integration tests
         working-directory: ${{ env.working-directory }}
+        env:
+          RUN_AS_ROOT: ${{ inputs.run_integration_as_root }}
         run: |
           source "$HOME/.virtualenvs/ansible/bin/activate"
-          ansible-test integration --requirements --python ${{ matrix.python_version }}
+          if test "$RUN_AS_ROOT" = "true"; then
+              sudo ansible-test integration --requirements --python ${{ matrix.python_version }}
+          else
+              ansible-test integration --requirements --python ${{ matrix.python_version }}
+          fi
 
       - name: mock a role to make documentation test pass
         if: matrix.ansible_version != 2.12 and ${{ inputs.mock }} == true
