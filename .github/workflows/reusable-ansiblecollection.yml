@@ -145,7 +145,15 @@ jobs:
           source ~/.virtualenvs/ansible/bin/activate
           yamllint -s .
 
+      - name: Check for molecule
+        working-directory: ${{ env.working-directory }}
+        run: |
+          if test -d molecule; then
+            echo "has_molecule=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: lint molecule
+        if: ${{ steps.check_molecule.outputs.has_molecule }}
         working-directory: ${{ env.working-directory }}
         env:
           ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
