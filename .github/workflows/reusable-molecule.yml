@@ -175,7 +175,12 @@ jobs:
             podman network inspect "$n"
           done < <(podman network ls -q)
           if test -n "$CI_TARGET"; then
-              source "$ENV_FILE"
+              read CI_HOSTNAME < <(cat "$ENV_FILE" | python3 <(cat << EOF
+          import sys, yaml, json
+          y=yaml.safe_load(sys.stdin.read())
+          print(json.dumps(y))
+          EOF
+              ) | jq -r '.CI_HOSTNAME')
           fi
           test -n "$CI_HOSTNAME"
           podman inspect "$CI_HOSTNAME"
