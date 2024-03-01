@@ -22,6 +22,9 @@ on:  # yamllint disable-line rule:truthy
         type: string
       filename:
         type: string
+      name:
+        type: string
+        default: molecule
       target:
         description: The OS we will test on. An env file will be used.
         type: string
@@ -45,7 +48,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   molecule:
-    name: molecule ${{ inputs.target || inputs.hostname || inputs.filename }}
+    name: ${{ inputs.name }} ${{ inputs.target || inputs.hostname || inputs.filename }}
     runs-on: ubuntu-22.04
     outputs:
       scenariocount: ${{ steps.molecule.outputs.i }}
