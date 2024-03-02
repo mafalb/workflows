@@ -112,9 +112,20 @@ jobs:
       filename: local-ci-0.1.0.tar.gz
       targeted_branch: ${{ needs.selectbranch.outputs.ref }}
 
-  fixcrun:
+  crun:
     runs-on: ubuntu-22.04
     steps:
+      - name: Build Container Image
+        run: |
+          cat - >Containerfile <<EOF
+          FROM ubuntu:22.04
+          RUN apt-get update && apt-get install -y systemd
+          CMD ["/lib/systemd/systemd"]
+          EOF
+          podman build --tag ghtest .
+      - name: Run Container fails
+        run: |
+          ! podman run --systemd always -d ghtest
       - name: Checkout workflows
         uses: actions/checkout@v4
       - name: Install crun
@@ -123,6 +134,8 @@ jobs:
           checksums: CHECKSUMS
       - name: Verify version of crun
         run: crun --version|grep 1.14.4
+      - name: Run Container
+        run: podman run --systemd always -d ghtest
 
   molecule:
     needs:
@@ -175,5 +188,6 @@ jobs:
       - molecule
       - molecule_multiple_scenarios
       - scenariocount
-      - fixcrun
+      - crun
+
 ...
