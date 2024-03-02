@@ -70,6 +70,11 @@ jobs:
           path: workflows
           ref: ${{ inputs.targeted_branch }}
 
+      - name: Install crun
+        uses: ./workflows/.github/actions/fixcrun
+        with:
+          checksums: ./workflows/CHECKSUMS
+
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:
