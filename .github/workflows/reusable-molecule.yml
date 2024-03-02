@@ -22,6 +22,9 @@ on:  # yamllint disable-line rule:truthy
         type: string
       filename:
         type: string
+      name:
+        type: string
+        default: molecule
       target:
         description: The OS we will test on. An env file will be used.
         type: string
@@ -45,7 +48,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
 
   molecule:
-    name: molecule ${{ inputs.target || inputs.hostname || inputs.filename }}
+    name: ${{ inputs.name }} ${{ inputs.target || inputs.hostname || inputs.filename }}
     runs-on: ubuntu-22.04
     outputs:
       scenariocount: ${{ steps.molecule.outputs.i }}
@@ -66,6 +69,11 @@ jobs:
           repository: mafalb/workflows
           path: workflows
           ref: ${{ inputs.targeted_branch }}
+
+      - name: Install crun
+        uses: ./workflows/.github/actions/fixcrun
+        with:
+          checksums: ./workflows/CHECKSUMS
 
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
@@ -172,7 +180,12 @@ jobs:
             podman network inspect "$n"
           done < <(podman network ls -q)
           if test -n "$CI_TARGET"; then
-              source "$ENV_FILE"
+              read CI_HOSTNAME < <(cat "$ENV_FILE" | python3 <(cat << EOF
+          import sys, yaml, json
+          y=yaml.safe_load(sys.stdin.read())
+          print(json.dumps(y))
+          EOF
+              ) | jq -r '.CI_HOSTNAME')
           fi
           test -n "$CI_HOSTNAME"
           podman inspect "$CI_HOSTNAME"
