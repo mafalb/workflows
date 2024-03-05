@@ -246,6 +246,7 @@ jobs:
         env:
           ANSIBLE_COLLECTIONS_PATH: "$GITHUB_WORKSPACE/collections:${{ env.ANSIBLE_COLLECTIONS_PATH }}"
         run: |
+          tree
           source ~/.virtualenvs/ansible/bin/activate
           test -r "$VIRTUAL_ENV"/constraints.txt
           test -n "${{ env.namespace }}"
