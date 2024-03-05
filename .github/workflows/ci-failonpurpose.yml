@@ -21,7 +21,6 @@ jobs:
     uses: ./.github/workflows/reusable-allsuccess.yml
     with:
       joblist: ${{ toJSON(needs) }})
-      continue-on-error: true
     needs:
       - fail_on_purpose
 
