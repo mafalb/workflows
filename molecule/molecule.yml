@@ -1,0 +1,43 @@
+# Copyright (c) Markus Falb <markus.falb@mafalb.at>
+# GNU General Public License v3.0+
+# see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: molecule/requirements.yml
+
+driver:
+  name: ${CI_DRIVER:-podman}
+
+platforms:
+  - name: ${CI_HOSTNAME}
+    image: ${CI_IMAGE}
+    dockerfile: ../${CI_DOCKERFILE}
+    command: /lib/systemd/systemd
+    #capabilities:
+    #  - SYS_ADMIN
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    systemd: always
+    extra_opts:
+      - --annotation=run.oci.systemd.force_cgroup_v1=/sys/fs/cgroup
+
+provisioner:
+  name: ansible
+  ansible_args:
+    - --tags=all,debug
+    - --diff
+  env:
+    # pick up CI-only roles
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/molecule/default/roles
+  config_options:
+    defaults:
+      gathering: smart
+      interpreter_python: auto
+      stdout_callback: community.general.yaml
+      bin_ansible_callbacks: true
+
+verifier:
+  name: ansible
+...

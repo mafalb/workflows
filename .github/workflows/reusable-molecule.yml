@@ -75,6 +75,12 @@ jobs:
         with:
           checksums: ./workflows/CHECKSUMS
 
+      - name: Mount cgroupv1 if necessary
+        if: inputs.target == 'centos7'
+        run: |
+          sudo mkdir /sys/fs/cgroup/systemd
+          sudo mount -t cgroup cgroup -o none,name=systemd /sys/fs/cgroup/systemd
+
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
         with:

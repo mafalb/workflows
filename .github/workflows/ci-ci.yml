@@ -149,6 +149,17 @@ jobs:
       hostname: ci-system
       target: ubuntu22
 
+  molecule_cgroupsv1:
+    needs:
+      - selectbranch
+      - createansiblecollection
+    uses: ./.github/workflows/reusable-molecule.yml
+    with:
+      name: Molecule citest
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
+      hostname: ci-centos7
+      target: centos7
+
   molecule_multiple_scenarios:
     needs:
       - selectbranch
