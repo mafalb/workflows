@@ -21,7 +21,7 @@ platforms:
       - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
     systemd: always
     extra_opts:
-      - --annotation=run.oci.systemd.force_cgroup_v1=/sys/fs/cgroup
+      ${CI_PODMAN_EXTRA_VARS}
 
 provisioner:
   name: ansible
