@@ -80,6 +80,8 @@ jobs:
         run: |
           sudo mkdir /sys/fs/cgroup/systemd
           sudo mount -t cgroup cgroup -o none,name=systemd /sys/fs/cgroup/systemd
+          ls -ld /sys/fs/cgroup/systemd
+          ls -l /sys/fs/cgroup/systemd
 
       - name: Install Ansible
         uses: ./workflows/.github/actions/installansible
