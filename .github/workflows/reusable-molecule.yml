@@ -155,11 +155,14 @@ jobs:
           if test -z "$SCENARIOS"; then
               test -n "$SCENARIO"
               SCENARIOS="$SCENARIO"
-          else
+          fi
+          if test -n "$SCENARIOS"; then
               IFSOLD="$IFS"
               IFS=$'[, \t\n]' read -a scenarios <<< "$SCENARIOS"
               IFS="$IFSOLD,"
           fi
+          # ensure we are supposed to do something
+          test -n "$scenarios"
           i=0
           # loop scenarios
           for scenario in "${scenarios[@]}"; do
