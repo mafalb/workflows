@@ -212,6 +212,17 @@ jobs:
               - role: local.ci2.role1
           EOF
 
+          cat - >local/ci2/molecule/default/converge.yml << EOF
+          ---
+          - name: A ci playbook
+            hosts: localhost
+            tasks:
+              - name: Get status of systemd-tmpfiles-setup.service  # noqa command-instead-of-module
+                ansible.builtin.command: systemctl status systemd-tmpfiles-setup.service
+                when: ansible_service_mgr == 'systemd'
+                changed_when: false
+          EOF
+
           cat - >local/ci2/molecule/Dockerfile-rhel7.j2 << EOF
           {% if item.registry is defined %}
           FROM {{ item.registry.url }}/{{ item.image }}
