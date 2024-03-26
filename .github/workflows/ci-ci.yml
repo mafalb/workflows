@@ -98,86 +98,11 @@ jobs:
       - name: Collection | Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ansible-collections-local-ci-${{ needs.selectbranch.outputs.ref }}
+          name: ansible-collections-${{ needs.selectbranch.outputs.ref }}
           path: local-ci-0.1.0.tar.gz
           if-no-files-found: error
           overwrite: true
 
-  # A Collection to test systemd container with old cgroups v1 (centos7)
-  #
-  createansiblecollection2:
-    runs-on: ubuntu-22.04
-    needs: selectbranch
-
-    steps:
-
-      - name: Collection | create a new collection with our skeleton
-        working-directory: ansible_collections
-        run: |
-          ansible-galaxy collection init --collection-skeleton ../skeletons/ansible-collection-skeleton local.ci2
-          ansible-galaxy collection install -r local/ci2/requirements.yml
-
-      - name: Collectionrole | create a new role
-        working-directory: ansible_collections
-        run: |
-          ansible-galaxy role init --role-skeleton ../skeletons/ansible-collection-role-skeleton role1 --init-path local/ci2/roles
-          cat - >local/ci2/playbooks/ci.yml << EOF
-          ---
-          - name: A ci playbook
-            hosts: localhost
-            roles:
-              - role: local.ci2.role1
-          EOF
-
-          cat - >local/ci2/molecule/Dockerfile-rhel7.j2 << EOF
-          {% if item.registry is defined %}
-          FROM {{ item.registry.url }}/{{ item.image }}
-          {% else %}
-          FROM {{ item.image }}
-          {% endif %}
-
-          STOPSIGNAL SIGRTMIN+3
-
-          ENV container docker
-
-          ENV LANG en_US.UTF-8
-          ENV LC_ALL en_US.UTF-8
-
-          {% if item.env is defined %}
-          {% for var, value in item.env.items() %}
-          {% if value %}
-          ENV {{ var }} {{ value }}
-          {% endif %}
-          {% endfor %}
-          {% endif %}
-
-          RUN yum makecache fast && yum install -y systemd python sudo yum-plugin-ovl bash iproute && sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf && yum clean all
-
-          RUN if test -d /lib/systemd/system/sysinit.target.wants/ ; then (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done);\
-           rm -f /lib/systemd/system/multi-user.target.wants/*;\
-           rm -f /etc/systemd/system/*.wants/*;\
-           rm -f /lib/systemd/system/local-fs.target.wants/*;\
-           rm -f /lib/systemd/system/sockets.target.wants/*udev*;\
-           rm -f /lib/systemd/system/sockets.target.wants/*initctl*;\
-           rm -f /lib/systemd/system/basic.target.wants/*;\
-           rm -f /lib/systemd/system/anaconda.target.wants/*;\
-          fi
-
-          RUN if test -d /lib/systemd/system/sysinit.target.wants/ ; then ln -s /lib/systemd/system/systemd-user-sessions.service /lib/systemd/system/multi-user.target.wants/; fi
-
-          VOLUME [ "/sys/fs/cgroup" ]
-          CMD ["/lib/systemd/systemd"]
-          EOF
-      - name: Collection | Build the collection
-        run: ansible-galaxy collection build ansible_collections/local/ci2
-
-      - name: Collection | Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ansible-collection-local-ci2-${{ needs.selectbranch.outputs.ref }}
-          path: local-ci2-0.1.0.tar.gz
-          if-no-files-found: error
-          overwrite: true
 
   ansiblecollection:
     needs:
@@ -225,18 +150,6 @@ jobs:
       hostname: ci-system
       target: ubuntu22
 
-  molecule_cgroupsv1:
-    needs:
-      - selectbranch
-      - createansiblecollection
-    uses: ./.github/workflows/reusable-molecule.yml
-    with:
-      name: Molecule cgroupv1
-      target: centos7
-      hostname: ci-centos7
-      filename: local-ci2-0.1.0.tar.gz
-      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
-
   molecule_multiple_scenarios:
     needs:
       - selectbranch
@@ -249,6 +162,110 @@ jobs:
       hostname: ci-system
       target: ubuntu22
       scenarios: "default, default"  # cheating!
+
+  # A Collection to test systemd container with old cgroups v1 (centos7)
+  #
+  createansiblecollection2:
+    runs-on: ubuntu-22.04
+    needs: selectbranch
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: mafalb/skeletons
+          path: skeletons
+          ref: ${{ needs.selectbranch.outputs.ref }}
+
+      - name: Create directory for collections
+        run: mkdir ansible_collections
+
+      - name: Collection | create a new collection with our skeleton
+        working-directory: ansible_collections
+        run: |
+          ansible-galaxy collection init --collection-skeleton ../skeletons/ansible-collection-skeleton local.ci2
+          ansible-galaxy collection install -r local/ci2/requirements.yml
+
+      - name: Collectionrole | create a new role
+        working-directory: ansible_collections
+        run: |
+          ansible-galaxy role init --role-skeleton ../skeletons/ansible-collection-role-skeleton role1 --init-path local/ci2/roles
+          cat - >local/ci2/playbooks/ci.yml << EOF
+          ---
+          - name: A ci playbook
+            hosts: localhost
+            roles:
+              - role: local.ci2.role1
+          EOF
+
+          cat - >local/ci2/molecule/Dockerfile-rhel7.j2 << EOF
+          {% if item.registry is defined %}
+          FROM {{ item.registry.url }}/{{ item.image }}
+          {% else %}
+          FROM {{ item.image }}
+          {% endif %}
+
+          STOPSIGNAL SIGRTMIN+3
+
+          ENV container docker
+
+          ENV LANG en_US.UTF-8
+          ENV LC_ALL en_US.UTF-8
+
+          {% if item.env is defined %}
+          {% for var, value in item.env.items() %}
+          {% if value %}
+          ENV {{ var }} {{ value }}
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+
+          RUN yum makecache fast && \
+              yum install -y systemd python sudo yum-plugin-ovl bash iproute && \
+              sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf && yum clean all
+
+          RUN if test -d /lib/systemd/system/sysinit.target.wants/ ; then\
+              (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || \
+              rm -f $i; done);\
+           rm -f /lib/systemd/system/multi-user.target.wants/*;\
+           rm -f /etc/systemd/system/*.wants/*;\
+           rm -f /lib/systemd/system/local-fs.target.wants/*;\
+           rm -f /lib/systemd/system/sockets.target.wants/*udev*;\
+           rm -f /lib/systemd/system/sockets.target.wants/*initctl*;\
+           rm -f /lib/systemd/system/basic.target.wants/*;\
+           rm -f /lib/systemd/system/anaconda.target.wants/*;\
+          fi
+
+          RUN if test -d /lib/systemd/system/sysinit.target.wants/ ; then \
+              ln -s /lib/systemd/system/systemd-user-sessions.service /lib/systemd/system/multi-user.target.wants/; fi
+
+          VOLUME [ "/sys/fs/cgroup" ]
+          CMD ["/lib/systemd/systemd"]
+          EOF
+
+      - name: Collection | Build the collection
+        run: ansible-galaxy collection build ansible_collections/local/ci2
+
+      - name: Collection | Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ansible-collections-${{ needs.selectbranch.outputs.ref }}
+          path: local-ci2-0.1.0.tar.gz
+          if-no-files-found: error
+          overwrite: true
+
+  molecule_cgroupsv1:
+    needs:
+      - selectbranch
+      - createansiblecollection
+    uses: ./.github/workflows/reusable-molecule.yml
+    with:
+      name: Molecule cgroupv1
+      target: centos7
+      hostname: ci-centos7
+      filename: local-ci2-0.1.0.tar.gz
+      targeted_branch: ${{ needs.selectbranch.outputs.ref }}
 
   scenariocount:
     needs: molecule_multiple_scenarios
