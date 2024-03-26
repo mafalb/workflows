@@ -167,7 +167,9 @@ jobs:
   #
   createansiblecollection2:
     runs-on: ubuntu-22.04
-    needs: selectbranch
+    needs:
+      - selectbranch
+      - createansiblecollection
 
     steps:
 
@@ -258,7 +260,7 @@ jobs:
   molecule_cgroupsv1:
     needs:
       - selectbranch
-      - createansiblecollection
+      - createansiblecollection2
     uses: ./.github/workflows/reusable-molecule.yml
     with:
       name: Molecule cgroupv1
@@ -291,8 +293,9 @@ jobs:
       - createansiblecollection
       - ansiblecollection
       - molecule
-      - molecule_cgroupsv1
       - molecule_multiple_scenarios
+      - createansiblecollection2
+      - molecule_cgroupsv1
       - scenariocount
       - crun
 
